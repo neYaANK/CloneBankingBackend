@@ -73,16 +73,21 @@ public class WebSecurityConfig {
 //        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 //
 //        return http.build();
+
+
         http.cors().and().csrf().disable()
+                //http.csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeHttpRequests().requestMatchers("/auth/**")
                 .permitAll()
                 .and()
-                .authorizeHttpRequests()
-                        .
-                anyRequest()
+                .authorizeHttpRequests().anyRequest()
                 .authenticated();
+
+//        http.cors().and().csrf().disable()
+//                        .exceptionHandling().auth
+
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
