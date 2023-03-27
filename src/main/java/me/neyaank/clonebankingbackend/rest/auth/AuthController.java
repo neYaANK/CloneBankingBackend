@@ -1,11 +1,8 @@
 package me.neyaank.clonebankingbackend.rest.auth;
 
 import jakarta.validation.Valid;
-import me.neyaank.clonebankingbackend.entity.User;
 import me.neyaank.clonebankingbackend.payload.JwtResponse;
 import me.neyaank.clonebankingbackend.payload.LoginRequest;
-import me.neyaank.clonebankingbackend.payload.MessageResponse;
-import me.neyaank.clonebankingbackend.payload.SignupRequest;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import me.neyaank.clonebankingbackend.security.jwt.JwtUtils;
 import me.neyaank.clonebankingbackend.security.services.UserDetailsImpl;
@@ -54,28 +51,29 @@ public class AuthController {
                 userDetails.getSurname(),
                 userDetails.getUsername()));
     }
+//For testing purposes will leave it commented here
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        if (userRepository.existsByPhoneNumber(signUpRequest.getPhoneNumber())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Phone number is already taken!"));
-        }
-//
-//        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+//    @PostMapping("/signup")
+//    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+//        if (userRepository.existsByPhoneNumber(signUpRequest.getPhoneNumber())) {
 //            return ResponseEntity
 //                    .badRequest()
-//                    .body(new MessageResponse("Error: Email is already in use!"));
+//                    .body(new MessageResponse("Error: Phone number is already taken!"));
 //        }
-
-        // Create new user's account
-        User user = new User(signUpRequest.getName(),
-                signUpRequest.getSurname(),
-                signUpRequest.getPhoneNumber(),
-                encoder.encode(signUpRequest.getPassword()));
-        userRepository.save(user);
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-    }
+////
+////        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+////            return ResponseEntity
+////                    .badRequest()
+////                    .body(new MessageResponse("Error: Email is already in use!"));
+////        }
+//
+//        // Create new user's account
+//        User user = new User(signUpRequest.getName(),
+//                signUpRequest.getSurname(),
+//                signUpRequest.getPhoneNumber(),
+//                encoder.encode(signUpRequest.getPassword()));
+//        userRepository.save(user);
+//
+//        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+//    }
 }

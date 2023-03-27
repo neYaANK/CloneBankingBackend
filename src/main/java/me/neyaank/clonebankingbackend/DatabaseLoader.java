@@ -8,6 +8,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 @AllArgsConstructor
 public class DatabaseLoader implements CommandLineRunner {
@@ -21,6 +23,8 @@ public class DatabaseLoader implements CommandLineRunner {
         User user = new User();
         user.setName("Name1");
         user.setSurname("Surname1");
+        user.setThirdName("Thirdname1");
+        user.setBirthday(LocalDate.of(2000, 7, 6));
         user.setPhoneNumber("+380961234567");
         user.setPassword(encoder.encode("testPassword12"));
         userRepository.save(user);

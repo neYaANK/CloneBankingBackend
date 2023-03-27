@@ -5,7 +5,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -21,6 +24,10 @@ public class User {
     private String name;
     @NotBlank
     private String surname;
+    @NotBlank
+    private String thirdName;
+    @NotNull
+    private LocalDate birthday;
 
     @NotBlank
     private String phoneNumber;
@@ -28,11 +35,25 @@ public class User {
     @NotBlank
     private String password;
 
-    public User(String name, String surname, String phoneNumber, String password) {
+    private String iconPath;
+
+    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password) {
         this.name = name;
         this.surname = surname;
+        this.thirdName = thirdName;
+        this.birthday = birthday;
         this.phoneNumber = phoneNumber;
         this.password = password;
+    }
+
+    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password, String iconPath) {
+        this.name = name;
+        this.surname = surname;
+        this.thirdName = thirdName;
+        this.birthday = birthday;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.iconPath = iconPath;
     }
 
     public Long getId() {
@@ -73,5 +94,29 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getThirdName() {
+        return thirdName;
+    }
+
+    public void setThirdName(String thirdName) {
+        this.thirdName = thirdName;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getIconPath() {
+        return iconPath;
+    }
+
+    public void setIconPath(String iconPath) {
+        this.iconPath = iconPath;
     }
 }
