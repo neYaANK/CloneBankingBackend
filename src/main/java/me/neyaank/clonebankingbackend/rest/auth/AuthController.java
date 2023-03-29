@@ -41,15 +41,15 @@ public class AuthController {
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//        List<String> roles = userDetails.getAuthorities().stream()
-//                .map(item -> item.getAuthority())
-//                .collect(Collectors.toList());
-
+        var userOptional = userRepository.findById(userDetails.getId());
+        if (!userOptional.isPresent())
+            return ResponseEntity.notFound().build();
+        var user = userOptional.get();
         return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getName(),
-                userDetails.getSurname(),
-                userDetails.getUsername()));
+                user.getId(),
+                user.getName(),
+                user.getSurname(),
+                user.getPhoneNumber()));
     }
 //For testing purposes will leave it commented here
 

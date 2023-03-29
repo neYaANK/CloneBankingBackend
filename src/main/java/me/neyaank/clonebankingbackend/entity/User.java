@@ -1,9 +1,6 @@
 package me.neyaank.clonebankingbackend.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.NoArgsConstructor;
@@ -31,11 +28,12 @@ public class User {
 
     @NotBlank
     private String phoneNumber;
-
     @NotBlank
     private String password;
 
-    private String iconPath;
+    @Lob
+    private byte[] icon;
+
 
     public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password) {
         this.name = name;
@@ -46,14 +44,14 @@ public class User {
         this.password = password;
     }
 
-    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password, String iconPath) {
+    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password, byte[] icon) {
         this.name = name;
         this.surname = surname;
         this.thirdName = thirdName;
         this.birthday = birthday;
         this.phoneNumber = phoneNumber;
         this.password = password;
-        this.iconPath = iconPath;
+        this.icon = icon;
     }
 
     public Long getId() {
@@ -112,11 +110,11 @@ public class User {
         this.birthday = birthday;
     }
 
-    public String getIconPath() {
-        return iconPath;
+    public byte[] getIcon() {
+        return icon;
     }
 
-    public void setIconPath(String iconPath) {
-        this.iconPath = iconPath;
+    public void setIcon(byte[] icon) {
+        this.icon = icon;
     }
 }
