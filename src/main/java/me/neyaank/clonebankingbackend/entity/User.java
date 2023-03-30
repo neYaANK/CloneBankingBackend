@@ -31,9 +31,9 @@ public class User {
     @NotBlank
     private String password;
 
-    @Lob
-    private byte[] icon;
-
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    private Image image;
 
     public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password) {
         this.name = name;
@@ -44,14 +44,14 @@ public class User {
         this.password = password;
     }
 
-    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password, byte[] icon) {
+    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password, Image image) {
         this.name = name;
         this.surname = surname;
         this.thirdName = thirdName;
         this.birthday = birthday;
         this.phoneNumber = phoneNumber;
         this.password = password;
-        this.icon = icon;
+        this.image = image;
     }
 
     public Long getId() {
@@ -110,11 +110,11 @@ public class User {
         this.birthday = birthday;
     }
 
-    public byte[] getIcon() {
-        return icon;
+    public Image getImage() {
+        return image;
     }
 
-    public void setIcon(byte[] icon) {
-        this.icon = icon;
+    public void setImage(Image image) {
+        this.image = image;
     }
 }

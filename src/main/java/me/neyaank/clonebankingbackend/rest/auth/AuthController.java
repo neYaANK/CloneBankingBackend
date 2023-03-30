@@ -42,8 +42,6 @@ public class AuthController {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         var userOptional = userRepository.findById(userDetails.getId());
-        if (!userOptional.isPresent())
-            return ResponseEntity.notFound().build();
         var user = userOptional.get();
         return ResponseEntity.ok(new JwtResponse(jwt,
                 user.getId(),
