@@ -1,8 +1,8 @@
 package me.neyaank.clonebankingbackend.rest.auth;
 
 import jakarta.validation.Valid;
-import me.neyaank.clonebankingbackend.payload.JwtResponse;
-import me.neyaank.clonebankingbackend.payload.LoginRequest;
+import me.neyaank.clonebankingbackend.payload.requests.LoginRequest;
+import me.neyaank.clonebankingbackend.payload.responses.JwtResponse;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import me.neyaank.clonebankingbackend.security.jwt.JwtUtils;
 import me.neyaank.clonebankingbackend.security.services.UserDetailsImpl;

@@ -1,4 +1,4 @@
-package me.neyaank.clonebankingbackend.payload;
+package me.neyaank.clonebankingbackend.payload.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

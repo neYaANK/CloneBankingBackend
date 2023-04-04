@@ -1,4 +1,4 @@
-package me.neyaank.clonebankingbackend.payload;
+package me.neyaank.clonebankingbackend.payload.responses;
 
 import lombok.AllArgsConstructor;
 

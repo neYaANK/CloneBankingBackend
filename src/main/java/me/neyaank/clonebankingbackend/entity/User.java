@@ -25,9 +25,9 @@ public class User {
     private String thirdName;
     @NotNull
     private LocalDate birthday;
-
-    @NotBlank
     private String phoneNumber;
+    private String email;
+
     @NotBlank
     private String password;
 
@@ -35,21 +35,23 @@ public class User {
     @JoinColumn(name = "image_id", referencedColumnName = "id")
     private Image image;
 
-    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password) {
+    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String email, String password) {
         this.name = name;
         this.surname = surname;
         this.thirdName = thirdName;
         this.birthday = birthday;
         this.phoneNumber = phoneNumber;
         this.password = password;
+        this.email = email;
     }
 
-    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String password, Image image) {
+    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String email, String password, Image image) {
         this.name = name;
         this.surname = surname;
         this.thirdName = thirdName;
         this.birthday = birthday;
         this.phoneNumber = phoneNumber;
+        this.email = email;
         this.password = password;
         this.image = image;
     }
@@ -116,5 +118,13 @@ public class User {
 
     public void setImage(Image image) {
         this.image = image;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

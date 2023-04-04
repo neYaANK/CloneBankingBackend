@@ -2,7 +2,8 @@ package me.neyaank.clonebankingbackend.rest;
 
 import lombok.AllArgsConstructor;
 import me.neyaank.clonebankingbackend.entity.Image;
-import me.neyaank.clonebankingbackend.payload.UserInfoResponse;
+import me.neyaank.clonebankingbackend.payload.requests.UserUpdateRequest;
+import me.neyaank.clonebankingbackend.payload.responses.UserInfoResponse;
 import me.neyaank.clonebankingbackend.repository.ImageRepository;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import me.neyaank.clonebankingbackend.security.services.UserDetailsImpl;
@@ -27,27 +28,37 @@ public class UserController {
     UserRepository userRepository;
     @Autowired
     ImageRepository imageRepository;
+    private final List<String> VALID_MIME = List.of(MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE);
+
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserInfoResponse> userById(@PathVariable Long id) {
-        var auth = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!auth.getId().equals(id)) return ResponseEntity.badRequest().build();
+        if (isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
+
         var user = userRepository.findById(id);
         var toReturn = user.get();
         toReturn.setPassword(null);
         return ResponseEntity.ok(new UserInfoResponse(user.get()));
     }
 
+    @PostMapping(value = "/{id}")
+    public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest request) {
+        if (isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
+        var user = userRepository.findById(id).get();
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setEmail(request.getEmail());
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping(value = "/{id}/image")
     public ResponseEntity uploadImage(@PathVariable Long id, MultipartFile image) throws IOException {
-        var auth = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!auth.getId().equals(id)) return ResponseEntity.badRequest().build();
+        if (isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
 
-        List<String> validMIME = List.of(MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE);
-        if (!validMIME.contains(image.getContentType())) return ResponseEntity.badRequest().body("Not valid image");
+
+        if (!VALID_MIME.contains(image.getContentType())) return ResponseEntity.badRequest().body("Not valid image");
         var userOptional = userRepository.findById(id);
         var user = userOptional.get();
-        //Add validation
 
         var imageRemove = user.getImage();
 
@@ -65,8 +76,8 @@ public class UserController {
 
     @DeleteMapping(value = "/{id}/image")
     public ResponseEntity deleteImage(@PathVariable Long id) {
-        var auth = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!auth.getId().equals(id)) return ResponseEntity.badRequest().build();
+        if (isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
+
 
         var userOptional = userRepository.findById(id);
         var user = userOptional.get();
@@ -80,9 +91,8 @@ public class UserController {
 
     @GetMapping(value = "/{id}/image")
     public ResponseEntity getImage(@PathVariable Long id) {
-        var auth = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!auth.getId().equals(id)) return ResponseEntity.badRequest().build();
 
+        if (isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
         var userOptional = userRepository.findById(id);
         var user = userOptional.get();
 
@@ -101,5 +111,11 @@ public class UserController {
         return ResponseEntity.ok()
                 .headers(responseHeaders)
                 .body(new InputStreamResource(new ByteArrayInputStream(imageBytes)));
+    }
+
+    private boolean isAuthenticatedUser(Long id) {
+        var auth = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!auth.getId().equals(id)) return false;
+        return true;
     }
 }
