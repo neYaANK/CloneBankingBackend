@@ -1,11 +1,15 @@
 package me.neyaank.clonebankingbackend.payload.responses;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import me.neyaank.clonebankingbackend.entity.User;
 
 import java.time.LocalDate;
 
 @AllArgsConstructor
+@Getter
+@Setter
 public class UserInfoResponse {
     private Long id;
     private String name;
@@ -13,6 +17,7 @@ public class UserInfoResponse {
     private String thirdName;
     private LocalDate birthday;
     private String phoneNumber;
+    private String email;
 
     public UserInfoResponse(User user) {
         id = user.getId();
@@ -21,53 +26,7 @@ public class UserInfoResponse {
         thirdName = user.getThirdName();
         birthday = user.getBirthday();
         phoneNumber = user.getPhoneNumber();
+        email = user.getEmail();
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public String getThirdName() {
-        return thirdName;
-    }
-
-    public void setThirdName(String thirdName) {
-        this.thirdName = thirdName;
-    }
-
-    public LocalDate getBirthday() {
-        return birthday;
-    }
-
-    public void setBirthday(LocalDate birthday) {
-        this.birthday = birthday;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
 }

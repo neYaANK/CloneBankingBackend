@@ -1,10 +1,17 @@
 package me.neyaank.clonebankingbackend.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.NoArgsConstructor;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -31,9 +38,7 @@ public class User {
     @NotBlank
     private String password;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "image_id", referencedColumnName = "id")
-    private Image image;
+    private String imagePath;
 
     public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String email, String password) {
         this.name = name;
@@ -45,7 +50,7 @@ public class User {
         this.email = email;
     }
 
-    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String email, String password, Image image) {
+    public User(String name, String surname, String thirdName, LocalDate birthday, String phoneNumber, String email, String password, String imagePath) {
         this.name = name;
         this.surname = surname;
         this.thirdName = thirdName;
@@ -53,7 +58,21 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
-        this.image = image;
+        this.imagePath = imagePath;
+    }
+
+    public static byte[] NO_IMAGE;
+
+    static {
+        try {
+            BufferedImage bImage = ImageIO.read(User.class.getClassLoader().getResource("images/no_user.png"));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bImage, "png", baos);
+            NO_IMAGE = baos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public Long getId() {
@@ -112,12 +131,12 @@ public class User {
         this.birthday = birthday;
     }
 
-    public Image getImage() {
-        return image;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public String getEmail() {
