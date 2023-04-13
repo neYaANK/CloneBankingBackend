@@ -5,11 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
 @NoArgsConstructor
-@Setter
+@AllArgsConstructor
 @Getter
-public class UserUpdatePasswordRequest extends CodeRequest {
-    private String newPassword;
-    private String oldPassword;
+@Setter
+public class CodeRequest {
+    private String code;
 }

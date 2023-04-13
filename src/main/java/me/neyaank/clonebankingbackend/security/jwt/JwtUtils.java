@@ -24,21 +24,33 @@ public class JwtUtils {
     @Value("${neyaank.clonebanking.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    public String generateJwtToken(Authentication authentication) {
+    private final String AUTHENTICATED = "authenticated";
+    @Value("${neyaank.clonebanking.tempTokenMs}")
+    public long tempTokenExpirationMs;
 
+    public String generateJwtToken(Authentication authentication, boolean authenticated) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + (authenticated ? jwtExpirationMs : tempTokenExpirationMs));
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .setSubject(Long.toString(userPrincipal.getId()))
+                .claim(AUTHENTICATED, authenticated)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    public String getUserNameFromJwtToken(String token) {
+    public Long getIdFromJwtToken(String token) {
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+        return Long.valueOf(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject());
+    }
+
+    public Boolean isAuthenticated(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        return claims.get(AUTHENTICATED, Boolean.class);
     }
 
     public boolean validateJwtToken(String authToken) {

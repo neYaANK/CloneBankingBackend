@@ -7,7 +7,6 @@ import me.neyaank.clonebankingbackend.payload.requests.UserUpdatePasswordRequest
 import me.neyaank.clonebankingbackend.payload.requests.UserUpdatePhoneRequest;
 import me.neyaank.clonebankingbackend.payload.responses.UserInfoResponse;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
-import me.neyaank.clonebankingbackend.security.services.UserDetailsImpl;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +14,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+
+import static me.neyaank.clonebankingbackend.security.utils.TOTPUtility.getTOTPCode;
 
 @RestController
 @RequestMapping("/users")
@@ -57,50 +58,60 @@ public class UserController {
 
     private final List<String> VALID_MIME = List.of(MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE);
 
-
+    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserInfoResponse> userById(@PathVariable Long id) {
-        if (!isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
-
         var user = userRepository.findById(id);
         var toReturn = user.get();
         toReturn.setPassword(null);
         return ResponseEntity.ok(new UserInfoResponse(user.get()));
     }
 
+    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
     @PostMapping(value = "/{id}/email")
     public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserUpdateEmailRequest request) {
-        if (!isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
         var user = userRepository.findById(id).get();
         user.setEmail(request.getEmail());
         userRepository.save(user);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
     @PostMapping(value = "/{id}/phone")
     public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserUpdatePhoneRequest request) {
-        if (!isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
         var user = userRepository.findById(id).get();
+        String secretKey = user.getSecret();
+        String realCode = getTOTPCode(secretKey);
+        if (!realCode.equals(request.getCode())) {
+            return ResponseEntity.badRequest().body("Code is invalid!");
+        }
         user.setPhoneNumber(request.getPhoneNumber());
         userRepository.save(user);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
     @PostMapping(value = "/{id}/password")
     public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserUpdatePasswordRequest request) {
-        if (!isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
         var user = userRepository.findById(id).get();
+        String secretKey = user.getSecret();
+        String realCode = getTOTPCode(secretKey);
+        if (!realCode.equals(request.getCode())) {
+            return ResponseEntity.badRequest().body("Code is invalid!");
+        }
+
         if (!encoder.matches(request.getOldPassword(), user.getPassword()))
             return ResponseEntity.badRequest().body("Passwords don't match");
-        
+
         user.setPassword(request.getNewPassword());
         userRepository.save(user);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
     @PostMapping(value = "/{id}/image")
     public ResponseEntity uploadImage(@PathVariable Long id, MultipartFile image) throws IOException {
-        if (!isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
+        //if (!isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
         if (!VALID_MIME.contains(image.getContentType())) return ResponseEntity.badRequest().body("Not valid image");
         var userOptional = userRepository.findById(id);
         var user = userOptional.get();
@@ -120,10 +131,9 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
     @DeleteMapping(value = "/{id}/image")
     public ResponseEntity deleteImage(@PathVariable Long id) throws IOException {
-        if (!isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
-
 
         var userOptional = userRepository.findById(id);
         var user = userOptional.get();
@@ -135,15 +145,13 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
     @GetMapping(value = "/{id}/image")
-    public ResponseEntity getImage(@PathVariable Long id) throws IOException {
-
-        if (!isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
+    public ResponseEntity<?> getImage(@PathVariable Long id) throws IOException {
         var userOptional = userRepository.findById(id);
         var user = userOptional.get();
 
         HttpHeaders responseHeaders = new HttpHeaders();
-
         byte[] imageBytes;
         if (user.getImagePath() == null) {
             responseHeaders.setContentType(MediaType.IMAGE_PNG);
@@ -165,9 +173,5 @@ public class UserController {
                 .body(new InputStreamResource(new ByteArrayInputStream(imageBytes)));
     }
 
-    private boolean isAuthenticatedUser(Long id) {
-        var auth = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!auth.getId().equals(id)) return false;
-        return true;
-    }
+
 }
