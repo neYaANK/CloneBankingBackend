@@ -9,6 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserUpdatePhoneRequest {
+public class UserUpdatePhoneRequest extends CodeRequest {
     private String phoneNumber;
 }
