@@ -1,6 +1,7 @@
 package me.neyaank.clonebankingbackend;
 
 import lombok.AllArgsConstructor;
+import me.neyaank.clonebankingbackend.entity.Card;
 import me.neyaank.clonebankingbackend.entity.ERole;
 import me.neyaank.clonebankingbackend.entity.Role;
 import me.neyaank.clonebankingbackend.entity.User;
@@ -38,6 +39,10 @@ public class DatabaseLoader implements CommandLineRunner {
         user.setEmail("admin@gmail.com");
         user.setRoles(Set.of(roleRepository.findByName(ERole.ROLE_2FA).get()));
         user.setPassword(encoder.encode("testPassword12"));
+
+        Set<Card> cards = Set.of(new Card("1234 5678 9000 1234", LocalDate.of(2023, 10, 1), "123", "0000"));
+        user.setCards(cards);
+
         userRepository.save(user);
     }
 }

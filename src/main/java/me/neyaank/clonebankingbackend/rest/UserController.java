@@ -2,9 +2,9 @@ package me.neyaank.clonebankingbackend.rest;
 
 import jakarta.annotation.PostConstruct;
 import me.neyaank.clonebankingbackend.entity.User;
-import me.neyaank.clonebankingbackend.payload.requests.UserUpdateEmailRequest;
-import me.neyaank.clonebankingbackend.payload.requests.UserUpdatePasswordRequest;
-import me.neyaank.clonebankingbackend.payload.requests.UserUpdatePhoneRequest;
+import me.neyaank.clonebankingbackend.payload.requests.user.UserUpdateEmailRequest;
+import me.neyaank.clonebankingbackend.payload.requests.user.UserUpdatePasswordRequest;
+import me.neyaank.clonebankingbackend.payload.requests.user.UserUpdatePhoneRequest;
 import me.neyaank.clonebankingbackend.payload.responses.UserInfoResponse;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import org.apache.commons.io.FilenameUtils;
@@ -63,7 +63,6 @@ public class UserController {
     public ResponseEntity<UserInfoResponse> userById(@PathVariable Long id) {
         var user = userRepository.findById(id);
         var toReturn = user.get();
-        toReturn.setPassword(null);
         return ResponseEntity.ok(new UserInfoResponse(user.get()));
     }
 

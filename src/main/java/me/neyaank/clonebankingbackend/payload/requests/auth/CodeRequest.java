@@ -1,4 +1,4 @@
-package me.neyaank.clonebankingbackend.payload.requests;
+package me.neyaank.clonebankingbackend.payload.requests.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
