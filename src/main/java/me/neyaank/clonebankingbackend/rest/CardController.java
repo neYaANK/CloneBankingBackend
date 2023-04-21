@@ -30,7 +30,7 @@ public class CardController {
     CardRepository cardRepository;
 
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CardsResponse> cardsByUserId(@PathVariable Long id) {
         var user = userRepository.findById(id).get();
@@ -39,7 +39,7 @@ public class CardController {
         return ResponseEntity.ok(new CardsResponse(cardDTOSet));
     }
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @GetMapping(value = "/{id}/{cardId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CardInfoResponse> cardByUserAndCardId(@PathVariable(name = "id") Long userId, @PathVariable Long cardId) {
         var user = userRepository.findById(userId).get();
@@ -48,7 +48,7 @@ public class CardController {
         return ResponseEntity.ok(new CardInfoResponse(card.get()));
     }
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @PostMapping(value = "/{id}/{cardId}/changePinOld", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PincodeResponse> changeCardPinWithOldPin(@PathVariable(name = "id") Long userId, @PathVariable Long cardId, @Valid @RequestBody PincodeRequest request) {
         var user = userRepository.findById(userId).get();
@@ -61,7 +61,7 @@ public class CardController {
         return ResponseEntity.ok(new PincodeResponse(card.getPinCode()));
     }
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @PostMapping(value = "/{id}/{cardId}/changePin2FA", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PincodeResponse> changeCardPinWith2FA(@PathVariable(name = "id") Long userId, @PathVariable Long cardId, @Valid @RequestBody CodeRequest request) {
         var user = userRepository.findById(userId).get();

@@ -58,7 +58,10 @@ public class UserController {
 
     private final List<String> VALID_MIME = List.of(MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE);
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    /*I am really sorry for this workaround, but user id is in the subject of JwtAuthorizationToken
+    The type is String and I need to convert id parameter to String and this is the solution I found :(
+    */
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserInfoResponse> userById(@PathVariable Long id) {
         var user = userRepository.findById(id);
@@ -66,7 +69,7 @@ public class UserController {
         return ResponseEntity.ok(new UserInfoResponse(user.get()));
     }
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @PostMapping(value = "/{id}/email")
     public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserUpdateEmailRequest request) {
         var user = userRepository.findById(id).get();
@@ -75,7 +78,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @PostMapping(value = "/{id}/phone")
     public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserUpdatePhoneRequest request) {
         var user = userRepository.findById(id).get();
@@ -89,7 +92,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @PostMapping(value = "/{id}/password")
     public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserUpdatePasswordRequest request) {
         var user = userRepository.findById(id).get();
@@ -107,7 +110,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @PostMapping(value = "/{id}/image")
     public ResponseEntity uploadImage(@PathVariable Long id, MultipartFile image) throws IOException {
         //if (!isAuthenticatedUser(id)) return ResponseEntity.badRequest().build();
@@ -130,7 +133,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @DeleteMapping(value = "/{id}/image")
     public ResponseEntity deleteImage(@PathVariable Long id) throws IOException {
 
@@ -144,7 +147,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("#id == authentication.principal.id&&hasRole(T(me.neyaank.clonebankingbackend.entity.ERole).ROLE_2FA.name())")
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @GetMapping(value = "/{id}/image")
     public ResponseEntity<?> getImage(@PathVariable Long id) throws IOException {
         var userOptional = userRepository.findById(id);
