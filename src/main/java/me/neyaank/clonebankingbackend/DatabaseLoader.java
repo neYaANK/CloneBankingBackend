@@ -27,8 +27,8 @@ public class DatabaseLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        roleRepository.save(new Role(ERole.ROLE_NO_2FA));
-        roleRepository.save(new Role(ERole.ROLE_2FA));
+        roleRepository.save(new Role(ERole.NO_2FA));
+        roleRepository.save(new Role(ERole.WITH_2FA));
 
         User user = new User();
         user.setName("Name1");
@@ -37,7 +37,7 @@ public class DatabaseLoader implements CommandLineRunner {
         user.setBirthday(LocalDate.of(2000, 7, 6));
         user.setPhoneNumber("+380961234567");
         user.setEmail("admin@gmail.com");
-        user.setRoles(Set.of(roleRepository.findByName(ERole.ROLE_2FA).get()));
+        user.setRoles(Set.of(roleRepository.findByName(ERole.WITH_2FA).get()));
         user.setPassword(encoder.encode("testPassword12"));
 
         Set<Card> cards = Set.of(new Card("1234 5678 9000 1234", LocalDate.of(2023, 10, 1), "123", "0000"));

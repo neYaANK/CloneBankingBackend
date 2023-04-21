@@ -12,6 +12,7 @@ import me.neyaank.clonebankingbackend.payload.responses.JwtResponse;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import me.neyaank.clonebankingbackend.security.jwt.JwtUtils;
 import me.neyaank.clonebankingbackend.security.services.UserDetailsImpl;
+import me.neyaank.clonebankingbackend.security.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,8 +20,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,15 +43,16 @@ public class AuthController {
     @Autowired
     PasswordEncoder encoder;
     @Autowired
+    UserService userService;
+    @Autowired
     JwtUtils jwtUtils;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) throws QrGenerationException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getPhoneNumber(), loginRequest.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        var details = (UserDetails) authentication.getPrincipal();
-        var user = userRepository.findByPhoneNumber(details.getUsername()).get();
+        var details = (UserDetailsImpl) authentication.getPrincipal();
+        var user = userService.findUserById(details.getId()).get();
         List<String> roles = user.getRoles().stream()
                 .map(item -> item.getName().name())
                 .collect(Collectors.toList());
@@ -76,11 +78,7 @@ public class AuthController {
                     user.getSurname(),
                     user.getPhoneNumber(), roles, false, qrCodeImage));
         }
-
         String jwt = jwtUtils.generateJwtToken(authentication, false);
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        var userOptional = userRepository.findById(userDetails.getId());
 
         return ResponseEntity.ok(new JwtResponse(jwt,
                 user.getId(),
@@ -90,11 +88,10 @@ public class AuthController {
     }
 
     @PostMapping("/verify")
-    @PreAuthorize("hasRole('ROLE_NO_2FA')")
+    @PreAuthorize("hasRole('NO_2FA')")
     public ResponseEntity<?> verifyCode(@NotEmpty @RequestBody CodeRequest code) {
-        var details = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        var user = userRepository.findById(details.getId()).get();
-
+        var auth = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        var user = userService.findUserByToken(auth).get();
         String secretKey = user.getSecret();
         String realCode = getTOTPCode(secretKey);
         if (!realCode.equals(code.getCode())) {
