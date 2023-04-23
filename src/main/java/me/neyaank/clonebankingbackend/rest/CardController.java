@@ -1,6 +1,7 @@
 package me.neyaank.clonebankingbackend.rest;
 
 import jakarta.validation.Valid;
+import me.neyaank.clonebankingbackend.entity.Card;
 import me.neyaank.clonebankingbackend.payload.requests.auth.CodeRequest;
 import me.neyaank.clonebankingbackend.payload.requests.card.PincodeRequest;
 import me.neyaank.clonebankingbackend.payload.responses.card.CardDTO;
@@ -10,12 +11,14 @@ import me.neyaank.clonebankingbackend.payload.responses.card.PincodeResponse;
 import me.neyaank.clonebankingbackend.repository.CardRepository;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,7 +31,16 @@ public class CardController {
     UserRepository userRepository;
     @Autowired
     CardRepository cardRepository;
+    @Value("${neyaank.clonebanking.cardDurationInMonths}")
+    private int cardExpiresInMonths;
+    @Value("${neyaank.clonebanking.BIN}")
+    private String bankIdentificationNumber;
 
+    private Long getMaxCardNumber() {
+        var cards = cardRepository.findAll();
+        var card = cards.stream().skip(cards.size() - 1).findFirst().get().getId();
+        return card;
+    }
 
     @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,7 +51,7 @@ public class CardController {
         return ResponseEntity.ok(new CardsResponse(cardDTOSet));
     }
 
-    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
+    @PreAuthorize("(#userId+'') == authentication.getToken().getSubject()")
     @GetMapping(value = "/{id}/{cardId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CardInfoResponse> cardByUserAndCardId(@PathVariable(name = "id") Long userId, @PathVariable Long cardId) {
         var user = userRepository.findById(userId).get();
@@ -48,7 +60,7 @@ public class CardController {
         return ResponseEntity.ok(new CardInfoResponse(card.get()));
     }
 
-    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
+    @PreAuthorize("(#userId+'') == authentication.getToken().getSubject()")
     @PostMapping(value = "/{id}/{cardId}/changePinOld", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PincodeResponse> changeCardPinWithOldPin(@PathVariable(name = "id") Long userId, @PathVariable Long cardId, @Valid @RequestBody PincodeRequest request) {
         var user = userRepository.findById(userId).get();
@@ -56,12 +68,12 @@ public class CardController {
         if (cardOptional.isEmpty()) return ResponseEntity.notFound().build();
         if (!request.getPincode().equals(cardOptional.get().getPinCode())) return ResponseEntity.badRequest().build();
         var card = cardOptional.get();
-        card.setPinCode(generatePinCode());
+        card.setPinCode(generateSecureCode(4));
         cardRepository.save(card);
         return ResponseEntity.ok(new PincodeResponse(card.getPinCode()));
     }
 
-    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
+    @PreAuthorize("(#userId+'') == authentication.getToken().getSubject()")
     @PostMapping(value = "/{id}/{cardId}/changePin2FA", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PincodeResponse> changeCardPinWith2FA(@PathVariable(name = "id") Long userId, @PathVariable Long cardId, @Valid @RequestBody CodeRequest request) {
         var user = userRepository.findById(userId).get();
@@ -74,14 +86,41 @@ public class CardController {
             return ResponseEntity.badRequest().build();
         }
         var card = cardOptional.get();
-        card.setPinCode(generatePinCode());
+        card.setPinCode(generateSecureCode(4));
         cardRepository.save(card);
         return ResponseEntity.ok(new PincodeResponse(card.getPinCode()));
     }
 
-    private String generatePinCode() {
+    @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
+    @PostMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity createNewCard(@PathVariable Long id) {
+        var user = userRepository.findById(id).get();
+        var card = new Card();
+        card.setCardNumber(bankIdentificationNumber + getNextCardNumber());
+        card.setCv2(generateSecureCode(3));
+        card.setExpireDate(LocalDate.now().withDayOfMonth(1).plusMonths(cardExpiresInMonths));
+        card.setPinCode(generateSecureCode(4));
+        var cards = user.getCards();
+        cards.add(card);
+        user.setCards(cards);
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Card is created successfully");
+    }
+
+    private String getNextCardNumber() {
+        Long maxCardNumber = getMaxCardNumber();
+        int cardlength = 10;
+        var size = String.valueOf(maxCardNumber).length();
+        String cardNumber = "";
+        for (int i = 0; i < cardlength - size; i++) cardNumber += "0";
+        cardNumber += String.valueOf(maxCardNumber);
+        return cardNumber;
+    }
+
+    private String generateSecureCode(int max) {
         SecureRandom rand = new SecureRandom();
-        String pin = String.valueOf(rand.nextInt(4));
+        String pin = String.valueOf(rand.nextInt(max));
         return pin;
     }
 }
