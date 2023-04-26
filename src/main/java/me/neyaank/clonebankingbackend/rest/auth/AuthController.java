@@ -11,9 +11,11 @@ import me.neyaank.clonebankingbackend.payload.requests.auth.LoginRequest;
 import me.neyaank.clonebankingbackend.payload.responses.JwtResponse;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import me.neyaank.clonebankingbackend.security.jwt.JwtUtils;
+import me.neyaank.clonebankingbackend.security.services.TwilioSMSService;
 import me.neyaank.clonebankingbackend.security.services.UserDetailsImpl;
 import me.neyaank.clonebankingbackend.security.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 import static me.neyaank.clonebankingbackend.security.utils.TOTPUtility.generateSecretKey;
 import static me.neyaank.clonebankingbackend.security.utils.TOTPUtility.getTOTPCode;
+import static me.neyaank.clonebankingbackend.security.utils.Util.generateSecureCode;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -46,6 +49,11 @@ public class AuthController {
     UserService userService;
     @Autowired
     JwtUtils jwtUtils;
+    @Autowired
+    TwilioSMSService smsService;
+    @Value("${neyaank.clonebanking.usesTwilio}")
+    boolean usesTwilio;
+
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) throws QrGenerationException {
@@ -56,27 +64,32 @@ public class AuthController {
         List<String> roles = user.getRoles().stream()
                 .map(item -> item.getName().name())
                 .collect(Collectors.toList());
-        //If 2FA is not set (so mostly is first start)
-        if (!user.isUsing2FA()) {
-            user.setUsing2FA(true);
-            user.setSecret(generateSecretKey());
-            userRepository.save(user);
 
-            QrData data = new QrData.Builder()
-                    .label(user.getEmail())
-                    .secret(user.getSecret())
-                    .issuer("neYaANK")
-                    .build();
-            // Generate the QR code image data as a base64 string which can
-            // be used in an <img> tag:
-            QrGenerator generator = new ZxingPngQrGenerator();
-            String qrCodeImage = getDataUriForImage(generator.generate(data), generator.getImageMimeType());
-            String jwt = jwtUtils.generateJwtToken(authentication, false);
-            return ResponseEntity.ok(new JwtResponse(jwt,
-                    user.getId(),
-                    user.getName(),
-                    user.getSurname(),
-                    user.getPhoneNumber(), roles, false, qrCodeImage));
+        if (!usesTwilio) {
+            //If 2FA is not set (so mostly is first start)
+            if (!user.isUsing2FA()) {
+                user.setUsing2FA(true);
+                user.setSecret(generateSecretKey());
+                userRepository.save(user);
+
+                QrData data = new QrData.Builder()
+                        .label(user.getEmail())
+                        .secret(user.getSecret())
+                        .issuer("neYaANK")
+                        .build();
+                // Generate the QR code image data as a base64 string which can
+                // be used in an <img> tag:
+                QrGenerator generator = new ZxingPngQrGenerator();
+                String qrCodeImage = getDataUriForImage(generator.generate(data), generator.getImageMimeType());
+                String jwt = jwtUtils.generateJwtToken(authentication, false);
+                return ResponseEntity.ok(new JwtResponse(jwt,
+                        user.getId(),
+                        user.getName(),
+                        user.getSurname(),
+                        user.getPhoneNumber(), roles, false, qrCodeImage));
+            }
+        } else {
+            smsService.sendCode(user.getPhoneNumber(), generateSecureCode(4));
         }
         String jwt = jwtUtils.generateJwtToken(authentication, false);
 
@@ -92,12 +105,16 @@ public class AuthController {
     public ResponseEntity<?> verifyCode(@NotEmpty @RequestBody CodeRequest code) {
         var auth = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         var user = userService.findUserByToken(auth).get();
-        String secretKey = user.getSecret();
-        String realCode = getTOTPCode(secretKey);
-        if (!realCode.equals(code.getCode())) {
-            return ResponseEntity.badRequest().body("Code is invalid!");
+        if (!usesTwilio) {
+            String secretKey = user.getSecret();
+            String realCode = getTOTPCode(secretKey);
+            if (!realCode.equals(code.getCode())) {
+                return ResponseEntity.badRequest().body("Code is invalid!");
+            }
+        } else {
+            if (!smsService.verifyCode(user.getPhoneNumber(), code.getCode()))
+                return ResponseEntity.badRequest().body("Code is invalid!");
         }
-
         String jwt = jwtUtils.generateJwtToken(SecurityContextHolder.getContext().getAuthentication(), true);
         List<String> roles = user.getRoles().stream()
                 .map(item -> item.getName().name())

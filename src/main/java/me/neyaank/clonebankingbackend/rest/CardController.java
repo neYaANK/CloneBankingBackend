@@ -17,12 +17,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static me.neyaank.clonebankingbackend.security.utils.TOTPUtility.getTOTPCode;
+import static me.neyaank.clonebankingbackend.security.utils.Util.generateSecureCode;
 
 @RestController
 @RequestMapping("/cards")
@@ -107,7 +107,6 @@ public class CardController {
 
         return ResponseEntity.ok("Card is created successfully");
     }
-
     private String getNextCardNumber() {
         Long maxCardNumber = getMaxCardNumber();
         int cardlength = 10;
@@ -118,9 +117,4 @@ public class CardController {
         return cardNumber;
     }
 
-    private String generateSecureCode(int max) {
-        SecureRandom rand = new SecureRandom();
-        String pin = String.valueOf(rand.nextInt(max));
-        return pin;
-    }
 }
