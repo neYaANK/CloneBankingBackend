@@ -105,12 +105,16 @@ public class AuthController {
     public ResponseEntity<?> verifyCode(@NotEmpty @RequestBody CodeRequest code) {
         var auth = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         var user = userService.findUserByToken(auth).get();
-        String secretKey = user.getSecret();
-        String realCode = getTOTPCode(secretKey);
-        if (!realCode.equals(code.getCode())) {
-            return ResponseEntity.badRequest().body("Code is invalid!");
+        if (!usesTwilio) {
+            String secretKey = user.getSecret();
+            String realCode = getTOTPCode(secretKey);
+            if (!realCode.equals(code.getCode())) {
+                return ResponseEntity.badRequest().body("Code is invalid!");
+            }
+        } else {
+            if (!smsService.verifyCode(user.getPhoneNumber(), code.getCode()))
+                return ResponseEntity.badRequest().body("Code is invalid!");
         }
-
         String jwt = jwtUtils.generateJwtToken(SecurityContextHolder.getContext().getAuthentication(), true);
         List<String> roles = user.getRoles().stream()
                 .map(item -> item.getName().name())
