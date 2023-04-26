@@ -32,8 +32,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
-import static me.neyaank.clonebankingbackend.security.utils.TOTPUtility.getTOTPCode;
-
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -82,11 +80,7 @@ public class UserController {
     @PostMapping(value = "/{id}/phone")
     public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserUpdatePhoneRequest request) {
         var user = userRepository.findById(id).get();
-        String secretKey = user.getSecret();
-        String realCode = getTOTPCode(secretKey);
-        if (!realCode.equals(request.getCode())) {
-            return ResponseEntity.badRequest().body("Code is invalid!");
-        }
+
         user.setPhoneNumber(request.getPhoneNumber());
         userRepository.save(user);
         return ResponseEntity.ok().build();
@@ -96,14 +90,6 @@ public class UserController {
     @PostMapping(value = "/{id}/password")
     public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserUpdatePasswordRequest request) {
         var user = userRepository.findById(id).get();
-        String secretKey = user.getSecret();
-        String realCode = getTOTPCode(secretKey);
-        if (!realCode.equals(request.getCode())) {
-            return ResponseEntity.badRequest().body("Code is invalid!");
-        }
-
-        if (!encoder.matches(request.getOldPassword(), user.getPassword()))
-            return ResponseEntity.badRequest().body("Passwords don't match");
 
         user.setPassword(request.getNewPassword());
         userRepository.save(user);

@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import me.neyaank.clonebankingbackend.payload.requests.auth.CodeRequest;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserUpdatePhoneRequest extends CodeRequest {
+public class UserUpdatePhoneRequest {
     private String phoneNumber;
 }
