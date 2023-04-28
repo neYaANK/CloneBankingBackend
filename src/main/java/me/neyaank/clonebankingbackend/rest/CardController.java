@@ -3,6 +3,7 @@ package me.neyaank.clonebankingbackend.rest;
 import jakarta.validation.Valid;
 import me.neyaank.clonebankingbackend.entity.Card;
 import me.neyaank.clonebankingbackend.payload.requests.auth.CodeRequest;
+import me.neyaank.clonebankingbackend.payload.requests.card.CreateCardRequest;
 import me.neyaank.clonebankingbackend.payload.requests.card.PincodeRequest;
 import me.neyaank.clonebankingbackend.payload.responses.card.CardDTO;
 import me.neyaank.clonebankingbackend.payload.responses.card.CardInfoResponse;
@@ -68,7 +69,7 @@ public class CardController {
         if (cardOptional.isEmpty()) return ResponseEntity.notFound().build();
         if (!request.getPincode().equals(cardOptional.get().getPinCode())) return ResponseEntity.badRequest().build();
         var card = cardOptional.get();
-        card.setPinCode(generateSecureCode(4));
+        card.setPinCode(generateSecureCode(9999, 4));
         cardRepository.save(card);
         return ResponseEntity.ok(new PincodeResponse(card.getPinCode()));
     }
@@ -86,20 +87,23 @@ public class CardController {
             return ResponseEntity.badRequest().build();
         }
         var card = cardOptional.get();
-        card.setPinCode(generateSecureCode(4));
+        card.setPinCode(generateSecureCode(9999, 4));
         cardRepository.save(card);
         return ResponseEntity.ok(new PincodeResponse(card.getPinCode()));
     }
 
     @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     @PostMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createNewCard(@PathVariable Long id) {
+    public ResponseEntity createNewCard(@PathVariable Long id, @Valid @RequestBody CreateCardRequest request) {
         var user = userRepository.findById(id).get();
         var card = new Card();
+        card.setCurrency(request.getCurrency());
+        card.setType(request.getType());
+        card.setPaymentSystem(request.getPaymentSystem());
         card.setCardNumber(bankIdentificationNumber + getNextCardNumber());
-        card.setCv2(generateSecureCode(3));
+        card.setCv2(generateSecureCode(999, 3));
         card.setExpireDate(LocalDate.now().withDayOfMonth(1).plusMonths(cardExpiresInMonths));
-        card.setPinCode(generateSecureCode(4));
+        card.setPinCode(generateSecureCode(9999, 4));
         var cards = user.getCards();
         cards.add(card);
         user.setCards(cards);

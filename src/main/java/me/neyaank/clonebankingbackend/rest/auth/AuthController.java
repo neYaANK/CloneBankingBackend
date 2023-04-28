@@ -89,7 +89,7 @@ public class AuthController {
                         user.getPhoneNumber(), roles, false, qrCodeImage));
             }
         } else {
-            smsService.sendCode(user.getPhoneNumber(), generateSecureCode(4));
+            smsService.sendCode(user.getPhoneNumber(), generateSecureCode(9999, 4));
         }
         String jwt = jwtUtils.generateJwtToken(authentication, false);
 

@@ -1,13 +1,10 @@
 package me.neyaank.clonebankingbackend;
 
-import lombok.AllArgsConstructor;
-import me.neyaank.clonebankingbackend.entity.Card;
-import me.neyaank.clonebankingbackend.entity.ERole;
-import me.neyaank.clonebankingbackend.entity.Role;
-import me.neyaank.clonebankingbackend.entity.User;
+import me.neyaank.clonebankingbackend.entity.*;
 import me.neyaank.clonebankingbackend.repository.RoleRepository;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -16,14 +13,15 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Component
-@AllArgsConstructor
 public class DatabaseLoader implements CommandLineRunner {
     @Autowired
-    private final PasswordEncoder encoder;
+    private PasswordEncoder encoder;
     @Autowired
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    private final RoleRepository roleRepository;
+    private RoleRepository roleRepository;
+    @Value("${neyaank.clonebanking.BIN}")
+    private String bin;
 
     @Override
     public void run(String... args) throws Exception {
@@ -40,7 +38,7 @@ public class DatabaseLoader implements CommandLineRunner {
         user.setRoles(Set.of(roleRepository.findByName(ERole.WITH_2FA).get()));
         user.setPassword(encoder.encode("testPassword12"));
 
-        Set<Card> cards = Set.of(new Card("1234 5678 9000 1234", LocalDate.of(2023, 10, 1), "123", "0000"));
+        Set<Card> cards = Set.of(new Card(bin + "7890001234", LocalDate.of(2023, 10, 1), "123", "0000", Currency.UAH, CardType.DEBIT, PaymentSystem.MASTERCARD));
         user.setCards(cards);
 
         userRepository.save(user);

@@ -26,11 +26,22 @@ public class Card {
     private String cv2;
     @NotBlank
     private String pinCode;
+    private double balance = 0;
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
+    @Enumerated(EnumType.STRING)
+    private CardType type;
+    @Enumerated(EnumType.STRING)
+    private PaymentSystem paymentSystem;
 
-    public Card(String cardNumber, LocalDate expireDate, String cv2, String pinCode) {
+
+    public Card(String cardNumber, LocalDate expireDate, String cv2, String pinCode, Currency currency, CardType type, PaymentSystem paymentSystem) {
         this.cardNumber = cardNumber;
         this.expireDate = expireDate;
         this.cv2 = cv2;
         this.pinCode = pinCode;
+        this.currency = currency;
+        this.type = type;
+        this.paymentSystem = paymentSystem;
     }
 }
