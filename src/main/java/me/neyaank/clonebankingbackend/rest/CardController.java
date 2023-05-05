@@ -2,15 +2,16 @@ package me.neyaank.clonebankingbackend.rest;
 
 import jakarta.validation.Valid;
 import me.neyaank.clonebankingbackend.entity.Card;
+import me.neyaank.clonebankingbackend.payload.dto.CardDTO;
 import me.neyaank.clonebankingbackend.payload.requests.auth.CodeRequest;
 import me.neyaank.clonebankingbackend.payload.requests.card.CreateCardRequest;
 import me.neyaank.clonebankingbackend.payload.requests.card.PincodeRequest;
-import me.neyaank.clonebankingbackend.payload.responses.card.CardDTO;
 import me.neyaank.clonebankingbackend.payload.responses.card.CardInfoResponse;
 import me.neyaank.clonebankingbackend.payload.responses.card.CardsResponse;
 import me.neyaank.clonebankingbackend.payload.responses.card.PincodeResponse;
 import me.neyaank.clonebankingbackend.repository.CardRepository;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
+import me.neyaank.clonebankingbackend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -22,7 +23,6 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static me.neyaank.clonebankingbackend.security.utils.TOTPUtility.getTOTPCode;
 import static me.neyaank.clonebankingbackend.security.utils.Util.generateSecureCode;
 
 @RestController
@@ -36,6 +36,9 @@ public class CardController {
     private int cardExpiresInMonths;
     @Value("${neyaank.clonebanking.BIN}")
     private String bankIdentificationNumber;
+
+    @Autowired
+    UserService userService;
 
     private Long getMaxCardNumber() {
         var cards = cardRepository.findAll();
@@ -81,11 +84,11 @@ public class CardController {
         var cardOptional = user.getCards().stream().filter(c -> c.getId() == cardId).findFirst();
         if (cardOptional.isEmpty()) return ResponseEntity.notFound().build();
 
-        String secretKey = user.getSecret();
-        String realCode = getTOTPCode(secretKey);
-        if (!realCode.equals(request.getCode())) {
-            return ResponseEntity.badRequest().build();
-        }
+//        String secretKey = user.getSecret();
+//        String realCode = getTOTPCode(secretKey);
+//        if (!realCode.equals(request.getCode())) {
+//            return ResponseEntity.badRequest().build();
+//        }
         var card = cardOptional.get();
         card.setPinCode(generateSecureCode(9999, 4));
         cardRepository.save(card);
@@ -104,10 +107,8 @@ public class CardController {
         card.setCv2(generateSecureCode(999, 3));
         card.setExpireDate(LocalDate.now().withDayOfMonth(1).plusMonths(cardExpiresInMonths));
         card.setPinCode(generateSecureCode(9999, 4));
-        var cards = user.getCards();
-        cards.add(card);
-        user.setCards(cards);
-        userRepository.save(user);
+        card.setUser(user);
+        cardRepository.save(card);
 
         return ResponseEntity.ok("Card is created successfully");
     }

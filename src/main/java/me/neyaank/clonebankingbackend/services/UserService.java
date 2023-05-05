@@ -1,4 +1,4 @@
-package me.neyaank.clonebankingbackend.security.services;
+package me.neyaank.clonebankingbackend.services;
 
 import me.neyaank.clonebankingbackend.entity.User;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;

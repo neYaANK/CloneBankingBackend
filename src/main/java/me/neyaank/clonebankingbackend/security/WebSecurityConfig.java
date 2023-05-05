@@ -3,7 +3,7 @@ package me.neyaank.clonebankingbackend.security;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import me.neyaank.clonebankingbackend.security.services.UserDetailsService;
+import me.neyaank.clonebankingbackend.services.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

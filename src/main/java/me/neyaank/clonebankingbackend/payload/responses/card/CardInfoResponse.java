@@ -23,7 +23,6 @@ public class CardInfoResponse {
     private Currency currency;
     private PaymentSystem paymentSystem;
     private CardType type;
-
     public CardInfoResponse(Card card) {
         this.id = card.getId();
         this.cardNumber = card.getCardNumber();
