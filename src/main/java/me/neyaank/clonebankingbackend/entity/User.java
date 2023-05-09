@@ -7,10 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -74,20 +70,4 @@ public class User {
         this.password = password;
         this.imagePath = imagePath;
     }
-
-    public static byte[] NO_IMAGE;
-
-    static {
-        try {
-            BufferedImage bImage = ImageIO.read(User.class.getClassLoader().getResource("images/no_user.png"));
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bImage, "png", baos);
-            NO_IMAGE = baos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
 }

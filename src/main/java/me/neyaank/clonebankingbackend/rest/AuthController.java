@@ -1,4 +1,4 @@
-package me.neyaank.clonebankingbackend.rest.auth;
+package me.neyaank.clonebankingbackend.rest;
 
 import dev.samstevens.totp.exceptions.QrGenerationException;
 import dev.samstevens.totp.qr.QrData;
@@ -60,7 +60,7 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getPhoneNumber(), loginRequest.getPassword()));
         var details = (UserDetailsImpl) authentication.getPrincipal();
-        var user = userService.findUserById(details.getId()).get();
+        var user = userRepository.findById(details.getId()).get();
         List<String> roles = user.getRoles().stream()
                 .map(item -> item.getName().name())
                 .collect(Collectors.toList());
