@@ -1,10 +1,10 @@
 package me.neyaank.clonebankingbackend.services;
 
 import jakarta.annotation.PostConstruct;
-import lombok.AllArgsConstructor;
 import me.neyaank.clonebankingbackend.entity.User;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,9 +27,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
 public class UserServiceImpl implements UserService {
+    @Autowired
     private UserRepository userRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
     @Value("${neyaank.clonebanking.profilePictureDirectory}")
     private String profileDirectory;
