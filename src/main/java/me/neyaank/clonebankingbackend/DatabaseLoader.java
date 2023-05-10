@@ -2,8 +2,11 @@ package me.neyaank.clonebankingbackend;
 
 import me.neyaank.clonebankingbackend.entity.*;
 import me.neyaank.clonebankingbackend.repository.CardRepository;
+import me.neyaank.clonebankingbackend.repository.CreditTypeRepository;
 import me.neyaank.clonebankingbackend.repository.RoleRepository;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
+import me.neyaank.clonebankingbackend.services.CardService;
+import me.neyaank.clonebankingbackend.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -24,13 +27,23 @@ public class DatabaseLoader implements CommandLineRunner {
 
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private CreditTypeRepository creditTypeRepository;
+    @Autowired
+    private PaymentService paymentService;
+    @Autowired
+    private CardService cardService;
     @Value("${neyaank.clonebanking.BIN}")
     private String bin;
+
 
     @Override
     public void run(String... args) throws Exception {
         roleRepository.save(new Role(ERole.NO_2FA));
         roleRepository.save(new Role(ERole.WITH_2FA));
+        CreditType ct1 = new CreditType(5, Currency.UAH);
+        ct1 = creditTypeRepository.save(ct1);
+
         User user = new User();
         user.setName("Name1");
         user.setSurname("Surname1");
@@ -40,13 +53,6 @@ public class DatabaseLoader implements CommandLineRunner {
         user.setEmail("admin@gmail.com");
         user.setRoles(Set.of(roleRepository.findByName(ERole.WITH_2FA).get()));
         user.setPassword(encoder.encode("testPassword12"));
-        var c1 = new Card(bin + "7890001234", LocalDate.of(2023, 10, 1), "123", "0000", Currency.UAH, CardType.DEBIT, PaymentSystem.MASTERCARD);
-        c1.setBalance(500);
-        c1.setUser(user);
-        //List<Card> cards = List.of(c1);
-        //user.setCards(cards);
-        userRepository.save(user);
-        cardRepository.save(c1);
 
         User user2 = new User();
         user2.setName("Name2");
@@ -57,12 +63,19 @@ public class DatabaseLoader implements CommandLineRunner {
         user2.setEmail("notadmin@gmail.com");
         user2.setRoles(Set.of(roleRepository.findByName(ERole.WITH_2FA).get()));
         user2.setPassword(encoder.encode("testPassword12"));
-        var c = new Card(bin + "7890001111", LocalDate.of(2024, 8, 1), "321", "0000", Currency.UAH, CardType.DEBIT, PaymentSystem.MASTERCARD);
-        c.setBalance(150);
-        c.setUser(user2);
-//        List<Card> cards2 = List.of(c);
-//        user2.setCards(cards2);
-        userRepository.save(user2);
-        cardRepository.save(c);
+        user = userRepository.save(user);
+        user2 = userRepository.save(user2);
+
+        var card1 = cardService.createCard(Currency.UAH, CardType.DEBIT, PaymentSystem.MASTERCARD, user.getId());
+        card1.setBalance(500);
+        var card2 = cardService.createCard(Currency.UAH, CardType.DEBIT, PaymentSystem.MASTERCARD, user2.getId());
+        card2.setBalance(150);
+
+        card1 = cardRepository.save(card1);
+        card2 = cardRepository.save(card2);
+
+        var payment1 = paymentService.makePayment(card1.getCardNumber(), card2.getCardNumber(), 100);
+
+
     }
 }

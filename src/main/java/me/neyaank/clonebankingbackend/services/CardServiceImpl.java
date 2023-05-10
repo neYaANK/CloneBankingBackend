@@ -74,6 +74,7 @@ public class CardServiceImpl implements CardService {
         card.setExpireDate(LocalDate.now().withDayOfMonth(1).plusMonths(cardExpiresInMonths));
         //card.setPinCode(generateSecureCode(9999, 4));
         card.setUser(user);
+        card.setBalance(0);
         card = cardRepository.save(card);
         return card;
     }

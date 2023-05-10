@@ -44,7 +44,8 @@ public class PaymentController {
             return ResponseEntity.notFound().build();
         if (!cardService.isOwner(request.getSenderCardNumber(), id))
             return ResponseEntity.status(HttpStatusCode.valueOf(401)).body("Authorized user is not an owner of sending card");
-        paymentService.makePayment(request.getSenderCardNumber(), request.getReceiverCardNumber(), request.getBalance());
+        var payment = paymentService.makePayment(request.getSenderCardNumber(), request.getReceiverCardNumber(), request.getBalance());
+        if (payment.isEmpty()) return ResponseEntity.badRequest().body("Not enough money");
         return ResponseEntity.ok().build();
     }
 

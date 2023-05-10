@@ -8,6 +8,7 @@ import me.neyaank.clonebankingbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,10 +24,13 @@ public class PaymentServiceImpl implements PaymentService {
     CurrencyService currencyService;
 
     @Override
-    public Payment makePayment(String sender, String receiver, double balance) {
+    public Optional<Payment> makePayment(String sender, String receiver, double balance) {
         var send = cardRepository.findCardByCardNumber(sender).get();
         var receive = cardRepository.findCardByCardNumber(receiver).get();
         double rate = currencyService.getExchangeRate(send.getCurrency(), receive.getCurrency());
+
+        if (send.getBalance() < balance) return Optional.empty();
+
 
         Payment payment = new Payment(send, receive, balance, balance * rate, send.getCurrency(), receive.getCurrency(), rate);
         payment.setReceiver(receive);
@@ -35,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
         receive.setBalance(receive.getBalance() + payment.getIncomingValue());
         payment = paymentRepository.save(payment);
         cardRepository.save(send);
-        return payment;
+        return Optional.of(payment);
     }
 
     @Override
