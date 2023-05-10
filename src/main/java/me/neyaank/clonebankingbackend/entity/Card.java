@@ -26,8 +26,8 @@ public class Card {
     private LocalDate expireDate;
     @NotBlank
     private String cv2;
-    @NotBlank
-    private String pinCode;
+    //    @NotBlank
+//    private String pinCode;
     private double balance = 0;
     @Enumerated(EnumType.STRING)
     private Currency currency;
@@ -48,7 +48,7 @@ public class Card {
         this.cardNumber = cardNumber;
         this.expireDate = expireDate;
         this.cv2 = cv2;
-        this.pinCode = pinCode;
+        //this.pinCode = pinCode;
         this.currency = currency;
         this.type = type;
         this.paymentSystem = paymentSystem;

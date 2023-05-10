@@ -72,7 +72,7 @@ public class CardServiceImpl implements CardService {
         card.setCardNumber(bankIdentificationNumber + getNextCardNumber());
         card.setCv2(generateSecureCode(999, 3));
         card.setExpireDate(LocalDate.now().withDayOfMonth(1).plusMonths(cardExpiresInMonths));
-        card.setPinCode(generateSecureCode(9999, 4));
+        //card.setPinCode(generateSecureCode(9999, 4));
         card.setUser(user);
         card = cardRepository.save(card);
         return card;
