@@ -2,7 +2,6 @@ package me.neyaank.clonebankingbackend;
 
 import me.neyaank.clonebankingbackend.entity.*;
 import me.neyaank.clonebankingbackend.repository.CardRepository;
-import me.neyaank.clonebankingbackend.repository.CreditTypeRepository;
 import me.neyaank.clonebankingbackend.repository.RoleRepository;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import me.neyaank.clonebankingbackend.services.CardService;
@@ -28,8 +27,6 @@ public class DatabaseLoader implements CommandLineRunner {
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
-    private CreditTypeRepository creditTypeRepository;
-    @Autowired
     private PaymentService paymentService;
     @Autowired
     private CardService cardService;
@@ -41,8 +38,6 @@ public class DatabaseLoader implements CommandLineRunner {
     public void run(String... args) throws Exception {
         roleRepository.save(new Role(ERole.NO_2FA));
         roleRepository.save(new Role(ERole.WITH_2FA));
-        CreditType ct1 = new CreditType(5, Currency.UAH);
-        ct1 = creditTypeRepository.save(ct1);
 
         User user = new User();
         user.setName("Name1");
