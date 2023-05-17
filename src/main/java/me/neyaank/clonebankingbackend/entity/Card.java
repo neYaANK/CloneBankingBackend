@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 //TODO: move enumerated to separate table
 @Entity
@@ -38,10 +37,10 @@ public class Card {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
-    private Set<Payment> incomingPayments;
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
-    private Set<Payment> outgoingPayments;
+//    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+//    private Set<Payment> incomingPayments;
+//    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+//    private Set<Payment> outgoingPayments;
 
 
     public Card(String cardNumber, LocalDate expireDate, String cv2, String pinCode, Currency currency, CardType type, PaymentSystem paymentSystem) {

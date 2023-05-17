@@ -1,14 +1,11 @@
 package me.neyaank.clonebankingbackend;
 
 import me.neyaank.clonebankingbackend.entity.*;
-import me.neyaank.clonebankingbackend.repository.CardRepository;
-import me.neyaank.clonebankingbackend.repository.CreditTypeRepository;
-import me.neyaank.clonebankingbackend.repository.RoleRepository;
-import me.neyaank.clonebankingbackend.repository.UserRepository;
+import me.neyaank.clonebankingbackend.repository.*;
 import me.neyaank.clonebankingbackend.services.CardService;
+import me.neyaank.clonebankingbackend.services.CreditService;
 import me.neyaank.clonebankingbackend.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -33,12 +30,15 @@ public class DatabaseLoader implements CommandLineRunner {
     private PaymentService paymentService;
     @Autowired
     private CardService cardService;
-    @Value("${neyaank.clonebanking.BIN}")
-    private String bin;
-
+    @Autowired
+    private CreditRepository creditRepository;
+    @Autowired
+    PaymentRepository paymentRepository;
+    @Autowired
+    CreditService creditService;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         roleRepository.save(new Role(ERole.NO_2FA));
         roleRepository.save(new Role(ERole.WITH_2FA));
         CreditType ct1 = new CreditType(5, Currency.UAH);
@@ -74,8 +74,13 @@ public class DatabaseLoader implements CommandLineRunner {
         card1 = cardRepository.save(card1);
         card2 = cardRepository.save(card2);
 
-        var payment1 = paymentService.makePayment(card1.getCardNumber(), card2.getCardNumber(), 100);
+        var payment1 = paymentService.makeCardPayment(card1.getCardNumber(), card2.getCardNumber(), 100);
 
 
+        var credit1 = creditService.promptCredit(card1.getCardNumber(), ct1, 10000);
+        credit1.setLastIncreased(LocalDate.now().minusMonths(2));
+        credit1.setIssuedAt(LocalDate.now().minusMonths(3));
+        creditRepository.save(credit1);
+        creditService.makeCreditPayment(card1.getCardNumber(), credit1.getId(), 500);
     }
 }

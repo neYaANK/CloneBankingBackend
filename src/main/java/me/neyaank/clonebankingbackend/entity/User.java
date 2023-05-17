@@ -31,8 +31,11 @@ public class User {
     @NotBlank
     private String thirdName;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user")
     private List<Card> cards;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Credit> credits;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",

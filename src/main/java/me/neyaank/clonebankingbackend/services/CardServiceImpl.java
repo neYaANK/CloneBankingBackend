@@ -31,8 +31,12 @@ public class CardServiceImpl implements CardService {
 
     private Long getMaxCardNumber() {
         var cards = cardRepository.findAll();
-        var card = cards.stream().skip(cards.size() - 1).findFirst().get().getId();
-        return card;
+        Long num;
+        if (cards.size() > 0) {
+            num = cards.stream().skip(cards.size() - 1).findFirst().get().getId();
+        } else num = 0L;
+
+        return num;
     }
 
     private String getNextCardNumber() {

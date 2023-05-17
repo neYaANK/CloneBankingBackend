@@ -11,11 +11,7 @@ public class CurrencyService {
     private String API = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json";
 
     public double getExchangeRate(Currency from, Currency to) {
-        String baseCurrency = from.name();
-        String targetCurrency = to.name();
-
         WebClient client = WebClient.create();
-
         WebClient.ResponseSpec responseSpec = client.get()
                 .uri(API)
                 .retrieve();
@@ -24,7 +20,7 @@ public class CurrencyService {
         double rateMod = 1;
         if (from == to) rateMod = 1;
         else if (from == Currency.UAH || to == Currency.UAH) {
-            JSONObject rate = getCurrencyRate(to, response);
+            JSONObject rate = to == Currency.UAH ? getCurrencyRate(from, response) : getCurrencyRate(to, response);
             rateMod = rate.getDouble("rate");
             rateMod = from == Currency.UAH ? Math.pow(rateMod, -1) : rateMod;
         } else {

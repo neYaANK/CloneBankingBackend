@@ -5,32 +5,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
+//inheritance
+//additional tables
+//hardcode
 @Entity
-@Table(name = "transactions")
+@Table(name = "payments")
 @Getter
 @Setter
 @NoArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @ManyToOne
-    @JoinColumn(name = "sender_id", referencedColumnName = "id")
-    private Card sender;
-    @ManyToOne
-    @JoinColumn(name = "receiver_id", referencedColumnName = "id")
-    private Card receiver;
-    private double outgoingValue;
-    private double incomingValue;
+    protected Long id;
+    protected double outgoingValue;
+    protected double incomingValue;
     @Enumerated(EnumType.STRING)
-    private Currency outgoingCurrency;
+    protected Currency outgoingCurrency;
     @Enumerated(EnumType.STRING)
-    private Currency incomingCurrency;
-    private double outgoingToIncomingMod;
+    protected Currency incomingCurrency;
+    protected double outgoingToIncomingMod;
+    protected LocalDate issuedAt;
 
-    public Payment(Card sender, Card receiver, double outgoingValue, double incomingValue, Currency outgoingCurrency, Currency incomingCurrency, double outgoingToIncomingMod) {
-        this.sender = sender;
-        this.receiver = receiver;
+    public Payment(double outgoingValue, double incomingValue, Currency outgoingCurrency, Currency incomingCurrency, double outgoingToIncomingMod) {
+        issuedAt = LocalDate.now();
         this.outgoingValue = outgoingValue;
         this.incomingValue = incomingValue;
         this.outgoingCurrency = outgoingCurrency;
