@@ -46,9 +46,6 @@ public class User {
     private LocalDate birthday;
     private String phoneNumber;
     private String email;
-
-    private boolean using2FA;
-    private String secret;
     @NotBlank
     private String password;
     private String imagePath;
