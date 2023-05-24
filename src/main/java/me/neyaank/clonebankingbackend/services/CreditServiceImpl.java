@@ -5,6 +5,7 @@ import me.neyaank.clonebankingbackend.entity.*;
 import me.neyaank.clonebankingbackend.payload.dto.CreditDTO;
 import me.neyaank.clonebankingbackend.repository.CardRepository;
 import me.neyaank.clonebankingbackend.repository.CreditRepository;
+import me.neyaank.clonebankingbackend.repository.StatusRepository;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,6 +30,8 @@ public class CreditServiceImpl implements CreditService {
     PaymentService paymentService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    StatusRepository statusRepository;
 
     @Scheduled(initialDelay = 10, fixedRate = 3600 * 24, timeUnit = TimeUnit.SECONDS)
     public void processCredits() {
@@ -57,6 +60,7 @@ public class CreditServiceImpl implements CreditService {
     public Credit promptCredit(String cardNumber, CreditType creditType, double balance) {
         Card card = cardRepository.findCardByCardNumber(cardNumber).get();
         Credit credit = new Credit();
+        credit.setCreditStatus(statusRepository.findByName(EStatus.OPEN));
         credit.setCreditType(creditType);
         credit.setBalance(balance);
         credit.setBaseBalance(balance);
@@ -85,7 +89,7 @@ public class CreditServiceImpl implements CreditService {
     private Credit repayCredit(Long credit_id, double balance) {
         var credit = creditRepository.findById(credit_id).get();
         if (credit.getBalance() == balance) {
-            credit.setCreditStatus(Status.CLOSED);
+            credit.setCreditStatus(statusRepository.findByName(EStatus.CLOSED));
             credit.setBalance(0);
         } else {
             credit.setBalance(credit.getBalance() - balance);

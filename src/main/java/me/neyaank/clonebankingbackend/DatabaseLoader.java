@@ -42,6 +42,8 @@ public class DatabaseLoader implements CommandLineRunner {
     CardTypeRepository cardTypeRepository;
     @Autowired
     PaymentSystemRepository paymentSystemRepository;
+    @Autowired
+    StatusRepository statusRepository;
 
     @Override
     public void run(String... args) {
@@ -52,6 +54,8 @@ public class DatabaseLoader implements CommandLineRunner {
         cardTypeRepository.save(new CardType(ECardType.DEBIT));
         paymentSystemRepository.save(new PaymentSystem(EPaymentSystem.VISA));
         paymentSystemRepository.save(new PaymentSystem(EPaymentSystem.MASTERCARD));
+        statusRepository.save(new Status(EStatus.CLOSED));
+        statusRepository.save(new Status(EStatus.OPEN));
 
         roleRepository.save(new Role(ERole.NO_2FA));
         roleRepository.save(new Role(ERole.WITH_2FA));

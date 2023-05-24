@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import me.neyaank.clonebankingbackend.entity.Credit;
 import me.neyaank.clonebankingbackend.entity.CreditType;
-import me.neyaank.clonebankingbackend.entity.Status;
+import me.neyaank.clonebankingbackend.entity.EStatus;
 
 import java.time.LocalDate;
 
@@ -20,7 +20,7 @@ public class CreditDTO {
     private double balance;
     private double baseBalance;
     private LocalDate issuedAt;
-    private Status creditStatus;
+    private EStatus creditStatus;
 
     public CreditDTO(Credit credit) {
         this.id = credit.getId();

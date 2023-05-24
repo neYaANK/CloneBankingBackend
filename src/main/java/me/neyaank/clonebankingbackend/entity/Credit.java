@@ -24,12 +24,13 @@ public class Credit {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "status_id", referencedColumnName = "id")
     private Status creditStatus;
 
     public Credit() {
         issuedAt = LocalDate.now();
         lastIncreased = LocalDate.now();
-        creditStatus = Status.OPEN;
+
     }
 }
