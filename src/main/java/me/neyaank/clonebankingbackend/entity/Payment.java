@@ -22,19 +22,21 @@ public class Payment {
     protected Long id;
     protected double outgoingValue;
     protected double incomingValue;
-    @Enumerated(EnumType.STRING)
-    protected ECurrency outgoingECurrency;
-    @Enumerated(EnumType.STRING)
-    protected ECurrency incomingECurrency;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "outgoingCurrency_id", referencedColumnName = "id")
+    protected Currency outgoingCurrency;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "incomingCurrency_id", referencedColumnName = "id")
+    private Currency incomingCurrency;
     protected double outgoingToIncomingMod;
     protected LocalDate issuedAt;
 
-    public Payment(double outgoingValue, double incomingValue, ECurrency outgoingECurrency, ECurrency incomingECurrency, double outgoingToIncomingMod) {
+    public Payment(double outgoingValue, double incomingValue, Currency outgoingECurrency, Currency incomingECurrency, double outgoingToIncomingMod) {
         issuedAt = LocalDate.now();
         this.outgoingValue = outgoingValue;
         this.incomingValue = incomingValue;
-        this.outgoingECurrency = outgoingECurrency;
-        this.incomingECurrency = incomingECurrency;
+        this.outgoingCurrency = outgoingECurrency;
+        this.incomingCurrency = incomingECurrency;
         this.outgoingToIncomingMod = outgoingToIncomingMod;
     }
 }

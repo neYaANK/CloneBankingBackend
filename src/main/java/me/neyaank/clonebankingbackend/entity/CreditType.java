@@ -15,11 +15,13 @@ public class CreditType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private double percentPerMonth;
-    @Enumerated(EnumType.STRING)
-    private ECurrency ECurrency;
 
-    public CreditType(double percentPerMonth, ECurrency ECurrency) {
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "currency_id", referencedColumnName = "id")
+    private Currency currency;
+
+    public CreditType(double percentPerMonth, Currency currency) {
         this.percentPerMonth = percentPerMonth;
-        this.ECurrency = ECurrency;
+        this.currency = currency;
     }
 }

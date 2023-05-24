@@ -19,8 +19,8 @@ public class ToCreditPayment extends Payment {
     @JoinColumn(name = "receiver_id", referencedColumnName = "id")
     private Credit receiver;
 
-    public ToCreditPayment(Card sender, Credit receiver, double outgoingValue, double incomingValue, ECurrency outgoingECurrency, ECurrency incomingECurrency, double outgoingToIncomingMod) {
-        super(outgoingValue, incomingValue, outgoingECurrency, incomingECurrency, outgoingToIncomingMod);
+    public ToCreditPayment(Card sender, Credit receiver, double outgoingValue, double incomingValue, Currency outgoingCurrency, Currency incomingCurrency, double outgoingToIncomingMod) {
+        super(outgoingValue, incomingValue, outgoingCurrency, incomingCurrency, outgoingToIncomingMod);
         this.sender = sender;
         this.receiver = receiver;
     }

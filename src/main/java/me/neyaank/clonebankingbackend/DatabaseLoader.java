@@ -59,7 +59,7 @@ public class DatabaseLoader implements CommandLineRunner {
 
         roleRepository.save(new Role(ERole.NO_2FA));
         roleRepository.save(new Role(ERole.WITH_2FA));
-        CreditType ct1 = new CreditType(5, ECurrency.UAH);
+        CreditType ct1 = new CreditType(5, currencyRepository.findByName(ECurrency.UAH));
         ct1 = creditTypeRepository.save(ct1);
 
         User user = new User();

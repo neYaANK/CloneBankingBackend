@@ -37,7 +37,7 @@ public class PaymentServiceImpl implements PaymentService {
         double rate = currencyService.getExchangeRate(send.getCurrency().getName(), receive.getCurrency().getName());
 
         if (send.getBalance() < balance) return Optional.empty();
-        CardPayment payment = new CardPayment(send, receive, balance, balance * rate, send.getCurrency().getName(), receive.getCurrency().getName(), rate);
+        CardPayment payment = new CardPayment(send, receive, balance, balance * rate, send.getCurrency(), receive.getCurrency(), rate);
         send.setBalance(send.getBalance() - payment.getOutgoingValue());
         receive.setBalance(receive.getBalance() + payment.getIncomingValue());
         payment = paymentRepository.save(payment);
@@ -50,8 +50,8 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment makeFromCreditPayment(Long sender_credit_id, String receiver, double balance) {
         var send = creditRepository.findById(sender_credit_id).get();
         var receive = cardRepository.findCardByCardNumber(receiver).get();
-        double rate = currencyService.getExchangeRate(send.getCreditType().getECurrency(), receive.getCurrency().getName());
-        FromCreditPayment payment = new FromCreditPayment(send, receive, balance, balance * rate, send.getCreditType().getECurrency(), receive.getCurrency().getName(), rate);
+        double rate = currencyService.getExchangeRate(send.getCreditType().getCurrency().getName(), receive.getCurrency().getName());
+        FromCreditPayment payment = new FromCreditPayment(send, receive, balance, balance * rate, send.getCreditType().getCurrency(), receive.getCurrency(), rate);
         receive.setBalance(receive.getBalance() + payment.getIncomingValue());
         payment = paymentRepository.save(payment);
         cardRepository.save(receive);
@@ -62,11 +62,11 @@ public class PaymentServiceImpl implements PaymentService {
     public Optional<Payment> makeToCreditPayment(String sender, Long receiver_credit_id, double balance) {
         var send = cardRepository.findCardByCardNumber(sender).get();
         var receive = creditRepository.findById(receiver_credit_id).get();
-        double rate = currencyService.getExchangeRate(send.getCurrency().getName(), receive.getCreditType().getECurrency());
+        double rate = currencyService.getExchangeRate(send.getCurrency().getName(), receive.getCreditType().getCurrency().getName());
 
         if (send.getBalance() < balance) return Optional.empty();
 
-        ToCreditPayment payment = new ToCreditPayment(send, receive, balance, balance * rate, send.getCurrency().getName(), receive.getCreditType().getECurrency(), rate);
+        ToCreditPayment payment = new ToCreditPayment(send, receive, balance, balance * rate, send.getCurrency(), receive.getCreditType().getCurrency(), rate);
         send.setBalance(send.getBalance() - payment.getOutgoingValue());
         receive.setBalance(receive.getBalance() + payment.getIncomingValue());
         payment = paymentRepository.save(payment);
