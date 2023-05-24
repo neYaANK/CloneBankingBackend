@@ -1,9 +1,9 @@
 package me.neyaank.clonebankingbackend.services;
 
 import me.neyaank.clonebankingbackend.entity.Card;
-import me.neyaank.clonebankingbackend.entity.CardType;
-import me.neyaank.clonebankingbackend.entity.Currency;
-import me.neyaank.clonebankingbackend.entity.PaymentSystem;
+import me.neyaank.clonebankingbackend.entity.ECardType;
+import me.neyaank.clonebankingbackend.entity.ECurrency;
+import me.neyaank.clonebankingbackend.entity.EPaymentSystem;
 import me.neyaank.clonebankingbackend.payload.dto.CardDTO;
 
 import java.util.Set;
@@ -15,5 +15,5 @@ public interface CardService {
 
     Set<CardDTO> getCardDTOsByUserId(Long id);
 
-    Card createCard(Currency currency, CardType cardType, PaymentSystem paymentSystem, Long userId);
+    Card createCard(ECurrency ECurrency, ECardType cardType, EPaymentSystem paymentSystem, Long userId);
 }

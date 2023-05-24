@@ -25,29 +25,24 @@ public class Card {
     private LocalDate expireDate;
     @NotBlank
     private String cv2;
-    //    @NotBlank
-//    private String pinCode;
     private double balance = 0;
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "currency_id", referencedColumnName = "id")
     private Currency currency;
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "card_type_id", referencedColumnName = "id")
     private CardType type;
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "payment_system_id", referencedColumnName = "id")
     private PaymentSystem paymentSystem;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-//    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
-//    private Set<Payment> incomingPayments;
-//    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
-//    private Set<Payment> outgoingPayments;
-
 
     public Card(String cardNumber, LocalDate expireDate, String cv2, String pinCode, Currency currency, CardType type, PaymentSystem paymentSystem) {
         this.cardNumber = cardNumber;
         this.expireDate = expireDate;
         this.cv2 = cv2;
-        //this.pinCode = pinCode;
         this.currency = currency;
         this.type = type;
         this.paymentSystem = paymentSystem;

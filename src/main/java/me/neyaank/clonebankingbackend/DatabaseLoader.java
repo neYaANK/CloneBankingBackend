@@ -36,12 +36,26 @@ public class DatabaseLoader implements CommandLineRunner {
     PaymentRepository paymentRepository;
     @Autowired
     CreditService creditService;
+    @Autowired
+    CurrencyRepository currencyRepository;
+    @Autowired
+    CardTypeRepository cardTypeRepository;
+    @Autowired
+    PaymentSystemRepository paymentSystemRepository;
 
     @Override
     public void run(String... args) {
+        currencyRepository.save(new Currency(ECurrency.UAH));
+        currencyRepository.save(new Currency(ECurrency.USD));
+        currencyRepository.save(new Currency(ECurrency.EUR));
+        cardTypeRepository.save(new CardType(ECardType.CREDIT));
+        cardTypeRepository.save(new CardType(ECardType.DEBIT));
+        paymentSystemRepository.save(new PaymentSystem(EPaymentSystem.VISA));
+        paymentSystemRepository.save(new PaymentSystem(EPaymentSystem.MASTERCARD));
+
         roleRepository.save(new Role(ERole.NO_2FA));
         roleRepository.save(new Role(ERole.WITH_2FA));
-        CreditType ct1 = new CreditType(5, Currency.UAH);
+        CreditType ct1 = new CreditType(5, ECurrency.UAH);
         ct1 = creditTypeRepository.save(ct1);
 
         User user = new User();
@@ -66,9 +80,9 @@ public class DatabaseLoader implements CommandLineRunner {
         user = userRepository.save(user);
         user2 = userRepository.save(user2);
 
-        var card1 = cardService.createCard(Currency.UAH, CardType.DEBIT, PaymentSystem.MASTERCARD, user.getId());
+        var card1 = cardService.createCard(ECurrency.UAH, ECardType.DEBIT, EPaymentSystem.MASTERCARD, user.getId());
         card1.setBalance(500);
-        var card2 = cardService.createCard(Currency.UAH, CardType.DEBIT, PaymentSystem.MASTERCARD, user2.getId());
+        var card2 = cardService.createCard(ECurrency.UAH, ECardType.DEBIT, EPaymentSystem.MASTERCARD, user2.getId());
         card2.setBalance(150);
 
         card1 = cardRepository.save(card1);

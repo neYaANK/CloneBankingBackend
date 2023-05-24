@@ -19,16 +19,16 @@ public class PaymentDTO {
     private PaymentSource receiverSource;
     private double incoming;
     private double outgoing;
-    private Currency outgoingCurrency;
-    private Currency incomingCurrency;
+    private ECurrency outgoingECurrency;
+    private ECurrency incomingECurrency;
     private double rate;
     private LocalDate issuedAt;
 
     public PaymentDTO(Payment payment) {
         incoming = payment.getIncomingValue();
         outgoing = payment.getOutgoingValue();
-        incomingCurrency = payment.getIncomingCurrency();
-        outgoingCurrency = payment.getOutgoingCurrency();
+        incomingECurrency = payment.getIncomingECurrency();
+        outgoingECurrency = payment.getOutgoingECurrency();
         rate = payment.getOutgoingToIncomingMod();
         issuedAt = payment.getIssuedAt();
         if (payment instanceof CardPayment) {

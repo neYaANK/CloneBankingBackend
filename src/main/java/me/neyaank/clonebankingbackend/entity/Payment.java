@@ -23,18 +23,18 @@ public class Payment {
     protected double outgoingValue;
     protected double incomingValue;
     @Enumerated(EnumType.STRING)
-    protected Currency outgoingCurrency;
+    protected ECurrency outgoingECurrency;
     @Enumerated(EnumType.STRING)
-    protected Currency incomingCurrency;
+    protected ECurrency incomingECurrency;
     protected double outgoingToIncomingMod;
     protected LocalDate issuedAt;
 
-    public Payment(double outgoingValue, double incomingValue, Currency outgoingCurrency, Currency incomingCurrency, double outgoingToIncomingMod) {
+    public Payment(double outgoingValue, double incomingValue, ECurrency outgoingECurrency, ECurrency incomingECurrency, double outgoingToIncomingMod) {
         issuedAt = LocalDate.now();
         this.outgoingValue = outgoingValue;
         this.incomingValue = incomingValue;
-        this.outgoingCurrency = outgoingCurrency;
-        this.incomingCurrency = incomingCurrency;
+        this.outgoingECurrency = outgoingECurrency;
+        this.incomingECurrency = incomingECurrency;
         this.outgoingToIncomingMod = outgoingToIncomingMod;
     }
 }

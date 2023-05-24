@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import me.neyaank.clonebankingbackend.entity.Currency;
+import me.neyaank.clonebankingbackend.entity.ECurrency;
 
 @Getter
 @Setter
@@ -12,6 +12,6 @@ import me.neyaank.clonebankingbackend.entity.Currency;
 @NoArgsConstructor
 public class ExchangeRateResponse {
     private double rate;
-    private Currency base;
-    private Currency to;
+    private ECurrency base;
+    private ECurrency to;
 }

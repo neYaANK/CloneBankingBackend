@@ -1,12 +1,11 @@
 package me.neyaank.clonebankingbackend.services;
 
 import me.neyaank.clonebankingbackend.entity.Card;
-import me.neyaank.clonebankingbackend.entity.CardType;
-import me.neyaank.clonebankingbackend.entity.Currency;
-import me.neyaank.clonebankingbackend.entity.PaymentSystem;
+import me.neyaank.clonebankingbackend.entity.ECardType;
+import me.neyaank.clonebankingbackend.entity.ECurrency;
+import me.neyaank.clonebankingbackend.entity.EPaymentSystem;
 import me.neyaank.clonebankingbackend.payload.dto.CardDTO;
-import me.neyaank.clonebankingbackend.repository.CardRepository;
-import me.neyaank.clonebankingbackend.repository.UserRepository;
+import me.neyaank.clonebankingbackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,6 +27,14 @@ public class CardServiceImpl implements CardService {
     private int cardExpiresInMonths;
     @Value("${neyaank.clonebanking.BIN}")
     private String bankIdentificationNumber;
+    @Autowired
+    CurrencyService currencyService;
+    @Autowired
+    CurrencyRepository currencyRepository;
+    @Autowired
+    CardTypeRepository cardTypeRepository;
+    @Autowired
+    PaymentSystemRepository paymentSystemRepository;
 
     private Long getMaxCardNumber() {
         var cards = cardRepository.findAll();
@@ -67,16 +74,15 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public Card createCard(Currency currency, CardType cardType, PaymentSystem paymentSystem, Long userId) {
+    public Card createCard(ECurrency currency, ECardType cardType, EPaymentSystem paymentSystem, Long userId) {
         var user = userRepository.findById(userId).get();
         var card = new Card();
-        card.setCurrency(currency);
-        card.setType(cardType);
-        card.setPaymentSystem(paymentSystem);
+        card.setCurrency(currencyRepository.findByName(currency));
+        card.setType(cardTypeRepository.findByName(cardType));
+        card.setPaymentSystem(paymentSystemRepository.findByName(paymentSystem));
         card.setCardNumber(bankIdentificationNumber + getNextCardNumber());
         card.setCv2(generateSecureCode(999, 3));
         card.setExpireDate(LocalDate.now().withDayOfMonth(1).plusMonths(cardExpiresInMonths));
-        //card.setPinCode(generateSecureCode(9999, 4));
         card.setUser(user);
         card.setBalance(0);
         card = cardRepository.save(card);

@@ -78,7 +78,7 @@ public class CardController {
     @PostMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createNewCard(@PathVariable Long id, @Valid @RequestBody CreateCardRequest request) {
         if (!userRepository.existsById(id)) return ResponseEntity.status(401).build();
-        var card = cardService.createCard(request.getCurrency(), request.getType(), request.getPaymentSystem(), id);
+        var card = cardService.createCard(request.getECurrency(), request.getType(), request.getPaymentSystem(), id);
         return ResponseEntity.ok("Card is created successfully");
     }
 

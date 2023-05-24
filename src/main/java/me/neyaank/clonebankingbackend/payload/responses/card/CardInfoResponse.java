@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.neyaank.clonebankingbackend.entity.Card;
-import me.neyaank.clonebankingbackend.entity.CardType;
-import me.neyaank.clonebankingbackend.entity.Currency;
-import me.neyaank.clonebankingbackend.entity.PaymentSystem;
+import me.neyaank.clonebankingbackend.entity.ECardType;
+import me.neyaank.clonebankingbackend.entity.ECurrency;
+import me.neyaank.clonebankingbackend.entity.EPaymentSystem;
 
 import java.time.LocalDate;
 
@@ -20,17 +20,18 @@ public class CardInfoResponse {
     private LocalDate expireDate;
     private String cv2;
     private double balance;
-    private Currency currency;
-    private PaymentSystem paymentSystem;
-    private CardType type;
+    private ECurrency currency;
+    private EPaymentSystem paymentSystem;
+    private ECardType type;
+
     public CardInfoResponse(Card card) {
         this.id = card.getId();
         this.cardNumber = card.getCardNumber();
         this.expireDate = card.getExpireDate();
         this.cv2 = card.getCv2();
         this.balance = card.getBalance();
-        this.currency = card.getCurrency();
-        this.paymentSystem = card.getPaymentSystem();
-        this.type = card.getType();
+        this.currency = card.getCurrency().getName();
+        this.paymentSystem = card.getPaymentSystem().getName();
+        this.type = card.getType().getName();
     }
 }

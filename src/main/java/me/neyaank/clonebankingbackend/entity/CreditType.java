@@ -16,10 +16,10 @@ public class CreditType {
     private Long id;
     private double percentPerMonth;
     @Enumerated(EnumType.STRING)
-    private Currency currency;
+    private ECurrency ECurrency;
 
-    public CreditType(double percentPerMonth, Currency currency) {
+    public CreditType(double percentPerMonth, ECurrency ECurrency) {
         this.percentPerMonth = percentPerMonth;
-        this.currency = currency;
+        this.ECurrency = ECurrency;
     }
 }

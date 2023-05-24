@@ -1,6 +1,6 @@
 package me.neyaank.clonebankingbackend.rest;
 
-import me.neyaank.clonebankingbackend.entity.Currency;
+import me.neyaank.clonebankingbackend.entity.ECurrency;
 import me.neyaank.clonebankingbackend.payload.responses.ExchangeRateResponse;
 import me.neyaank.clonebankingbackend.services.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +16,8 @@ public class UtilityController {
     @Autowired
     CurrencyService currencyService;
 
-    @GetMapping("/exchange/{currency}")
-    public ResponseEntity<ExchangeRateResponse> getExchangeRate(@PathVariable Currency currency) {
-        return ResponseEntity.ok(new ExchangeRateResponse(currencyService.getExchangeRate(currency, Currency.UAH), currency, Currency.UAH));
+    @GetMapping("/exchange/{ECurrency}")
+    public ResponseEntity<ExchangeRateResponse> getExchangeRate(@PathVariable ECurrency ECurrency) {
+        return ResponseEntity.ok(new ExchangeRateResponse(currencyService.getExchangeRate(ECurrency, ECurrency.UAH), ECurrency, ECurrency.UAH));
     }
 }
