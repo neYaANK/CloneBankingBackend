@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -71,11 +70,10 @@ public class CreditServiceImpl implements CreditService {
     }
 
     @Override
-    public Optional<Payment> makeCreditPayment(String cardNumber, Long credit_id, double balance) {
+    public Payment makeCreditPayment(String cardNumber, Long credit_id, double balance) {
         var credit = creditRepository.findById(credit_id).get();
         var payment = paymentService.makeToCreditPayment(cardNumber, credit_id, balance);
-        if (payment.isEmpty()) return payment;
-        credit = repayCredit(credit_id, payment.get().getIncomingValue());
+        credit = repayCredit(credit_id, payment.getIncomingValue());
         return payment;
     }
 

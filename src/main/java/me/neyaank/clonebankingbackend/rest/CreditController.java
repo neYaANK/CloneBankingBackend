@@ -1,6 +1,8 @@
 package me.neyaank.clonebankingbackend.rest;
 
 import jakarta.validation.Valid;
+import me.neyaank.clonebankingbackend.exception.CardNotFoundException;
+import me.neyaank.clonebankingbackend.exception.InvalidOwnerException;
 import me.neyaank.clonebankingbackend.payload.requests.credit.CreditRepayRequest;
 import me.neyaank.clonebankingbackend.payload.requests.credit.CreditRequest;
 import me.neyaank.clonebankingbackend.payload.responses.CreditsResponse;
@@ -36,18 +38,16 @@ public class CreditController {
     @GetMapping("/{id}")
     @PreAuthorize("(#id+'') == authentication.getToken().getSubject()")
     public ResponseEntity<CreditsResponse> getCredits(@PathVariable Long id) {
-        if (!userRepository.existsById(id)) return ResponseEntity.status(401).build();
         return ResponseEntity.ok(new CreditsResponse(creditService.getCredits(id)));
     }
 
     @PostMapping("/request")
     public ResponseEntity promptCredit(@Valid @RequestBody CreditRequest request) {
-        var userOptional = userService.findUserByToken((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication());
-        var cardOptional = cardRepository.findCardByCardNumber(request.getCardNumber());
-        if (userOptional.isEmpty() || cardOptional.isEmpty()) return ResponseEntity.status(401).build();
-        var user = userOptional.get();
-        var card = cardOptional.get();
-        if (!cardService.isOwner(card.getId(), user.getId())) return ResponseEntity.status(401).build();
+        var user = userService.findUserByToken((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).get();
+        if (cardRepository.existsByCardNumber(request.getCardNumber()))
+            throw new CardNotFoundException(request.getCardNumber() + " not found");
+        var card = cardRepository.findCardByCardNumber(request.getCardNumber()).get();
+        if (!cardService.isOwner(card.getId(), user.getId())) throw new InvalidOwnerException("Not an owner");
         creditService.promptCredit(card.getCardNumber(), request.getCreditType(), request.getValue());
         return ResponseEntity.ok().build();
     }
@@ -55,11 +55,10 @@ public class CreditController {
     @PreAuthorize("(#user_id+'') == authentication.getToken().getSubject()")
     @PostMapping("/{user_id}/{credit_id}/repay")
     public ResponseEntity repayCredit(@PathVariable Long user_id, @PathVariable Long credit_id, @Valid @RequestBody CreditRepayRequest request) {
-        if (!userRepository.existsById(user_id)) return ResponseEntity.status(401).build();
-        if (!creditService.isOwner(credit_id, user_id)) return ResponseEntity.status(401).build();
-        if (!cardService.isOwner(request.getCardNumber(), user_id)) return ResponseEntity.status(401).build();
+        if (!creditService.isOwner(credit_id, user_id)) throw new InvalidOwnerException("User is not owner of credit");
+        if (!cardService.isOwner(request.getCardNumber(), user_id))
+            throw new InvalidOwnerException("User is not owner of card");
         var payment = creditService.makeCreditPayment(request.getCardNumber(), credit_id, request.getValue());
-        if (payment.isEmpty()) return ResponseEntity.badRequest().body("Not enough balance");
         return ResponseEntity.ok().build();
     }
 }

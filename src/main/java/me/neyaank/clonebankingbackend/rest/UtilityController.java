@@ -16,8 +16,8 @@ public class UtilityController {
     @Autowired
     CurrencyService currencyService;
 
-    @GetMapping("/exchange/{ECurrency}")
-    public ResponseEntity<ExchangeRateResponse> getExchangeRate(@PathVariable ECurrency ECurrency) {
-        return ResponseEntity.ok(new ExchangeRateResponse(currencyService.getExchangeRate(ECurrency, ECurrency.UAH), ECurrency, ECurrency.UAH));
+    @GetMapping("/exchange/{сurrency}")
+    public ResponseEntity<ExchangeRateResponse> getExchangeRate(@PathVariable ECurrency currency) {
+        return ResponseEntity.ok(new ExchangeRateResponse(currencyService.getExchangeRate(currency, ECurrency.UAH), currency, ECurrency.UAH));
     }
 }

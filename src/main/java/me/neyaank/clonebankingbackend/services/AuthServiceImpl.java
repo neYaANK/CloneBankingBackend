@@ -1,10 +1,10 @@
 package me.neyaank.clonebankingbackend.services;
 
+import me.neyaank.clonebankingbackend.exception.CodeInvalidException;
 import me.neyaank.clonebankingbackend.payload.responses.JwtResponse;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import me.neyaank.clonebankingbackend.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         var user = userService.findUserByToken(auth).get();
 
         if (!smsService.verifyCode(user.getPhoneNumber(), code))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Code invalid");
+            throw new CodeInvalidException(code + " is invalid");
         String jwt = jwtUtils.generateJwtToken(SecurityContextHolder.getContext().getAuthentication(), true);
         List<String> roles = user.getRoles().stream()
                 .map(item -> item.getName().name())

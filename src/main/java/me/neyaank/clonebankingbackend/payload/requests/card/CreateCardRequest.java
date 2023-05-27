@@ -11,7 +11,7 @@ import me.neyaank.clonebankingbackend.entity.EPaymentSystem;
 @Setter
 @AllArgsConstructor
 public class CreateCardRequest {
-    ECurrency ECurrency;
+    ECurrency currency;
     ECardType type;
     EPaymentSystem paymentSystem;
 }

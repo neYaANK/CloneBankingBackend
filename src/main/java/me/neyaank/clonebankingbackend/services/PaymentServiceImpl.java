@@ -4,6 +4,8 @@ import me.neyaank.clonebankingbackend.entity.CardPayment;
 import me.neyaank.clonebankingbackend.entity.FromCreditPayment;
 import me.neyaank.clonebankingbackend.entity.Payment;
 import me.neyaank.clonebankingbackend.entity.ToCreditPayment;
+import me.neyaank.clonebankingbackend.exception.CardNotFoundException;
+import me.neyaank.clonebankingbackend.exception.NotEnoughBalanceException;
 import me.neyaank.clonebankingbackend.payload.dto.PaymentDTO;
 import me.neyaank.clonebankingbackend.repository.CardRepository;
 import me.neyaank.clonebankingbackend.repository.CreditRepository;
@@ -12,7 +14,6 @@ import me.neyaank.clonebankingbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,19 +32,21 @@ public class PaymentServiceImpl implements PaymentService {
     CreditRepository creditRepository;
 
     @Override
-    public Optional<Payment> makeCardPayment(String sender, String receiver, double balance) {
+    public Payment makeCardPayment(String sender, String receiver, double balance) {
+        if (!cardRepository.existsByCardNumber(sender) || !cardRepository.existsByCardNumber(receiver))
+            throw new CardNotFoundException("Either receiver or sender card is invalid");
         var send = cardRepository.findCardByCardNumber(sender).get();
         var receive = cardRepository.findCardByCardNumber(receiver).get();
         double rate = currencyService.getExchangeRate(send.getCurrency().getName(), receive.getCurrency().getName());
 
-        if (send.getBalance() < balance) return Optional.empty();
+        if (send.getBalance() < balance) throw new NotEnoughBalanceException(balance + " required");
         CardPayment payment = new CardPayment(send, receive, balance, balance * rate, send.getCurrency(), receive.getCurrency(), rate);
         send.setBalance(send.getBalance() - payment.getOutgoingValue());
         receive.setBalance(receive.getBalance() + payment.getIncomingValue());
         payment = paymentRepository.save(payment);
         cardRepository.save(send);
         cardRepository.save(receive);
-        return Optional.of(payment);
+        return payment;
     }
 
     @Override
@@ -59,19 +62,19 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Optional<Payment> makeToCreditPayment(String sender, Long receiver_credit_id, double balance) {
+    public Payment makeToCreditPayment(String sender, Long receiver_credit_id, double balance) {
         var send = cardRepository.findCardByCardNumber(sender).get();
         var receive = creditRepository.findById(receiver_credit_id).get();
         double rate = currencyService.getExchangeRate(send.getCurrency().getName(), receive.getCreditType().getCurrency().getName());
 
-        if (send.getBalance() < balance) return Optional.empty();
+        if (send.getBalance() < balance) throw new NotEnoughBalanceException(balance + " required");
 
         ToCreditPayment payment = new ToCreditPayment(send, receive, balance, balance * rate, send.getCurrency(), receive.getCreditType().getCurrency(), rate);
         send.setBalance(send.getBalance() - payment.getOutgoingValue());
         receive.setBalance(receive.getBalance() + payment.getIncomingValue());
         payment = paymentRepository.save(payment);
         cardRepository.save(send);
-        return Optional.of(payment);
+        return payment;
     }
 
     @Override
