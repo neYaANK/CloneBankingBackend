@@ -1,4 +1,4 @@
-package me.neyaank.clonebankingbackend.security.services;
+package me.neyaank.clonebankingbackend.services;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

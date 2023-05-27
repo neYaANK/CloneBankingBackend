@@ -7,12 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -34,11 +31,11 @@ public class User {
     @NotBlank
     private String thirdName;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_cards",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "card_id"))
-    private Set<Card> cards = new HashSet<>();
+    @OneToMany(mappedBy = "user")
+    private List<Card> cards;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Credit> credits;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
@@ -49,9 +46,6 @@ public class User {
     private LocalDate birthday;
     private String phoneNumber;
     private String email;
-
-    private boolean using2FA;
-    private String secret;
     @NotBlank
     private String password;
     private String imagePath;
@@ -76,20 +70,4 @@ public class User {
         this.password = password;
         this.imagePath = imagePath;
     }
-
-    public static byte[] NO_IMAGE;
-
-    static {
-        try {
-            BufferedImage bImage = ImageIO.read(User.class.getClassLoader().getResource("images/no_user.png"));
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bImage, "png", baos);
-            NO_IMAGE = baos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
 }

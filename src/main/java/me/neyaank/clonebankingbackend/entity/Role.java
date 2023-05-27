@@ -19,7 +19,4 @@ public class Role {
     public Role(ERole role) {
         name = role;
     }
-
-    //private List<User> users;
-
 }

@@ -3,7 +3,7 @@ package me.neyaank.clonebankingbackend.security;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import me.neyaank.clonebankingbackend.security.services.UserDetailsService;
+import me.neyaank.clonebankingbackend.services.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -54,11 +54,14 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+
         http.cors().and().csrf().disable()
-                .authorizeHttpRequests().requestMatchers("/auth/**").permitAll()
-                .and()
-                .authorizeHttpRequests().anyRequest().authenticated()//hasRole(ERole.WITH_2FA.name())
-                .and()
+                .authorizeHttpRequests((authz) -> authz
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/public/**").permitAll()
+                        .anyRequest().authenticated()//hasRole(ERole.WITH_2FA.name())
+                )
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling((exceptions) -> exceptions

@@ -5,7 +5,7 @@ import io.jsonwebtoken.security.Keys;
 import me.neyaank.clonebankingbackend.entity.ERole;
 import me.neyaank.clonebankingbackend.entity.User;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
-import me.neyaank.clonebankingbackend.security.services.UserDetailsImpl;
+import me.neyaank.clonebankingbackend.services.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
