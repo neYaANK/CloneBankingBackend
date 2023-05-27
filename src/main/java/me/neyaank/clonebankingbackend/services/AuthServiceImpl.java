@@ -1,6 +1,6 @@
 package me.neyaank.clonebankingbackend.services;
 
-import me.neyaank.clonebankingbackend.exception.CodeInvalidException;
+import me.neyaank.clonebankingbackend.exception.InvalidCodeException;
 import me.neyaank.clonebankingbackend.payload.responses.JwtResponse;
 import me.neyaank.clonebankingbackend.repository.UserRepository;
 import me.neyaank.clonebankingbackend.security.jwt.JwtUtils;
@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         var user = userService.findUserByToken(auth).get();
 
         if (!smsService.verifyCode(user.getPhoneNumber(), code))
-            throw new CodeInvalidException(code + " is invalid");
+            throw new InvalidCodeException(code + " is invalid");
         String jwt = jwtUtils.generateJwtToken(SecurityContextHolder.getContext().getAuthentication(), true);
         List<String> roles = user.getRoles().stream()
                 .map(item -> item.getName().name())
