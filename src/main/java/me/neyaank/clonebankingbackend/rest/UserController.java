@@ -1,6 +1,6 @@
 package me.neyaank.clonebankingbackend.rest;
 
-import me.neyaank.clonebankingbackend.exception.CodeInvalidException;
+import me.neyaank.clonebankingbackend.exception.InvalidCodeException;
 import me.neyaank.clonebankingbackend.payload.requests.user.UserUpdateEmailRequest;
 import me.neyaank.clonebankingbackend.payload.requests.user.UserUpdatePasswordRequest;
 import me.neyaank.clonebankingbackend.payload.requests.user.UserUpdatePhoneRequest;
@@ -62,7 +62,7 @@ public class UserController {
     @PostMapping(value = "/{id}/password")
     public ResponseEntity updateUserPassword(@PathVariable Long id, @RequestBody UserUpdatePasswordRequest request) {
         if (!userService.comparePasswords(id, request.getOldPassword()))
-            throw new CodeInvalidException("Wrong password");
+            throw new InvalidCodeException("Wrong password");
         userService.updatePassword(id, request.getNewPassword());
         return ResponseEntity.ok().build();
     }
