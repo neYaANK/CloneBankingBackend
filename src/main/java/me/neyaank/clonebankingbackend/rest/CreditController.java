@@ -44,11 +44,13 @@ public class CreditController {
     @PostMapping("/request")
     public ResponseEntity promptCredit(@Valid @RequestBody CreditRequest request) {
         var user = userService.findUserByToken((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).get();
-        if (cardRepository.existsByCardNumber(request.getCardNumber()))
+        if (!cardRepository.existsByCardNumber(request.getCardNumber()))
             throw new CardNotFoundException(request.getCardNumber() + " not found");
         var card = cardRepository.findCardByCardNumber(request.getCardNumber()).get();
+        var creditType = creditTypeRepository.findById(request.getCreditTypeId());
+        if (!creditType.isPresent()) throw new RuntimeException("Card type is invalid");
         if (!cardService.isOwner(card.getId(), user.getId())) throw new InvalidOwnerException("Not an owner");
-        creditService.promptCredit(card.getCardNumber(), request.getCreditType(), request.getValue());
+        creditService.promptCredit(card.getCardNumber(), creditType.get(), request.getValue());
         return ResponseEntity.ok().build();
     }
 

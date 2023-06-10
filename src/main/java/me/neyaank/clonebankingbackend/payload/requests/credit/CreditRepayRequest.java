@@ -11,7 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreditRepayRequest {
-    @NotBlank
     private double value;
     @NotBlank
     private String cardNumber;

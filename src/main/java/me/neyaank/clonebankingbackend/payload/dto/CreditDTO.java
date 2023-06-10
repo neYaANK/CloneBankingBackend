@@ -28,6 +28,6 @@ public class CreditDTO {
         this.balance = credit.getBalance();
         this.baseBalance = credit.getBaseBalance();
         this.issuedAt = credit.getIssuedAt();
-        this.creditStatus = this.getCreditStatus();
+        this.creditStatus = credit.getCreditStatus().getName();
     }
 }
