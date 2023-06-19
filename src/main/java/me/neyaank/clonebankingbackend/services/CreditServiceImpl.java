@@ -73,7 +73,7 @@ public class CreditServiceImpl implements CreditService {
     public Payment makeCreditPayment(String cardNumber, Long credit_id, double balance) {
         var credit = creditRepository.findById(credit_id).get();
         var payment = paymentService.makeToCreditPayment(cardNumber, credit_id, balance);
-        credit = repayCredit(credit_id, payment.getIncomingValue());
+        credit = updateStatus(credit_id);
         return payment;
     }
 
@@ -84,13 +84,11 @@ public class CreditServiceImpl implements CreditService {
         return user.getCredits().contains(credit);
     }
 
-    private Credit repayCredit(Long credit_id, double balance) {
+    private Credit updateStatus(Long credit_id) {
         var credit = creditRepository.findById(credit_id).get();
-        if (credit.getBalance() == balance) {
+        if (credit.getBalance() <= 0) {
             credit.setCreditStatus(statusRepository.findByName(EStatus.CLOSED));
             credit.setBalance(0);
-        } else {
-            credit.setBalance(credit.getBalance() - balance);
         }
         return creditRepository.save(credit);
     }

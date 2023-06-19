@@ -71,9 +71,10 @@ public class PaymentServiceImpl implements PaymentService {
 
         ToCreditPayment payment = new ToCreditPayment(send, receive, balance, balance * rate, send.getCurrency(), receive.getCreditType().getCurrency(), rate);
         send.setBalance(send.getBalance() - payment.getOutgoingValue());
-        receive.setBalance(receive.getBalance() + payment.getIncomingValue());
+        receive.setBalance(receive.getBalance() - payment.getIncomingValue());
         payment = paymentRepository.save(payment);
         cardRepository.save(send);
+        creditRepository.save(receive);
         return payment;
     }
 
