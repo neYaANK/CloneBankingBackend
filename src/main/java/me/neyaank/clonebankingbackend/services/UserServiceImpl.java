@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
     public boolean setImage(Long id, MultipartFile image) {
         try {
             var user = userRepository.findById(id).get();
-            var imageRemove = user.getImagePath();
+            deleteImage(id);
             ByteArrayInputStream bis = new ByteArrayInputStream(image.getBytes());
             BufferedImage bImage2 = ImageIO.read(bis);
             String extension = StringUtils.getFilenameExtension(image.getOriginalFilename());
@@ -98,8 +98,6 @@ public class UserServiceImpl implements UserService {
 
             user.setImagePath(filename);
             user = userRepository.save(user);
-
-            if (imageRemove != null) Files.delete(Path.of(path));
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -113,7 +111,8 @@ public class UserServiceImpl implements UserService {
             var userOptional = userRepository.findById(id);
             var user = userOptional.get();
             if (user.getImagePath() != null) {
-                Files.delete(Path.of(profileDirectory + "/" + user.getImagePath()));
+                if (Files.exists(Path.of(profileDirectory + "/" + user.getImagePath())))
+                    Files.delete(Path.of(profileDirectory + "/" + user.getImagePath()));
                 user.setImagePath(null);
                 userRepository.save(user);
 
@@ -142,7 +141,7 @@ public class UserServiceImpl implements UserService {
             return imageBytes;
         } catch (IOException e) {
             e.printStackTrace();
-            return new byte[0];
+            return NO_IMAGE;
         }
     }
 

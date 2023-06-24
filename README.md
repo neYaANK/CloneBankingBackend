@@ -1,4 +1,5 @@
 # CloneBankingBackend
-Spring Boot API for CloneBanking solution
-Has JWT Token based authentication and 2FA authenticantion based on Google Authenticator.
-Has API to work with DB entities (currently uses embedded DB H2)
+Spring Boot API for CloneBanking solution.
+JWT, 2FA, Payments, Cards, Users, Currencies and Credits are implemented.
+
+Use code "0000" for 2FA if not set up
